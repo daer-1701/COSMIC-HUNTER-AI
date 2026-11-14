@@ -1,0 +1,9 @@
+---
+description: Contexto general y coordinación de Cosmic Hunter AI.
+alwaysApply: true
+---
+
+Lee `AGENTS.md` en la raíz como guía central del proyecto antes de editar.
+Consulta `docs/agent-tooling.md` para elegir skills de `.agents/skills/`.
+Comprueba estado y diff de Git: Codex puede estar trabajando en la misma carpeta.
+No sobrescribas cambios ajenos. Entrega rutas, comprobaciones y pendientes al cerrar.

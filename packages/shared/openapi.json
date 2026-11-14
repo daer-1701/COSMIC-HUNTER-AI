@@ -1,0 +1,229 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Cosmic Hunter AI",
+    "description": "Architecture foundation. No detection or discovery claims.",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/health/live": {
+      "get": {
+        "tags": [
+          "operations"
+        ],
+        "summary": "Liveness",
+        "description": "Process liveness only; does not assert database/archive readiness.",
+        "operationId": "liveness_health_live_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Liveness Health Live Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/observations/query-plan": {
+      "post": {
+        "tags": [
+          "observations"
+        ],
+        "summary": "Observation Query Plan",
+        "operationId": "observation_query_plan_v1_observations_query_plan_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ObservationQuery"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryPlan"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ObservationQuery": {
+        "properties": {
+          "ra_deg": {
+            "type": "number",
+            "exclusiveMaximum": 360.0,
+            "minimum": 0.0,
+            "title": "Ra Deg",
+            "description": "ICRS right ascension in degrees"
+          },
+          "dec_deg": {
+            "type": "number",
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Dec Deg",
+            "description": "ICRS declination in degrees"
+          },
+          "radius_deg": {
+            "type": "number",
+            "maximum": 0.5,
+            "exclusiveMinimum": 0.0,
+            "title": "Radius Deg"
+          },
+          "collection": {
+            "type": "string",
+            "enum": [
+              "spherex_dr1",
+              "spherex_qr3"
+            ],
+            "title": "Collection",
+            "default": "spherex_dr1"
+          },
+          "start_mjd": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Mjd"
+          },
+          "end_mjd": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Mjd"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ra_deg",
+          "dec_deg",
+          "radius_deg"
+        ],
+        "title": "ObservationQuery"
+      },
+      "QueryPlan": {
+        "properties": {
+          "archive": {
+            "type": "string",
+            "const": "IRSA",
+            "title": "Archive",
+            "default": "IRSA"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "executed": {
+            "type": "boolean",
+            "const": false,
+            "title": "Executed",
+            "default": false
+          },
+          "warning": {
+            "type": "string",
+            "title": "Warning",
+            "default": "Query plan only; no observations have been downloaded or validated."
+          }
+        },
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "title": "QueryPlan"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

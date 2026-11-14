@@ -1,0 +1,10 @@
+---
+description: Integridad científica de SPHEREx y evaluación reproducible.
+globs: services/astronomy/**,services/detection/**,notebooks/**
+alwaysApply: false
+---
+
+Lee `docs/science.md` y la skill `cosmic-spherex-pipeline` para ingestión/FITS/WCS,
+o `cosmic-reproducible-experiments` para benchmarks/notebooks.
+Conserva unidades, época, errores y procedencia; valida compatibilidad antes de comparar.
+No promociones hipótesis, inyecciones sintéticas o salidas LLM a resultados reales.

@@ -1,0 +1,38 @@
+{
+  "reviewed_on": "2026-11-14",
+  "scope": "repository",
+  "skills": [
+    {
+      "name": "vercel-react-best-practices",
+      "repository": "https://github.com/vercel-labs/agent-skills",
+      "ref": "1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62",
+      "source_path": "skills/react-best-practices",
+      "local_path": ".agents/skills/vercel-react-best-practices",
+      "method": "skill-installer, directory renamed to match frontmatter name"
+    },
+    {
+      "name": "web-design-guidelines",
+      "repository": "https://github.com/vercel-labs/agent-skills",
+      "ref": "1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62",
+      "source_path": "skills/web-design-guidelines",
+      "local_path": ".agents/skills/web-design-guidelines",
+      "method": "skill-installer",
+      "dynamic_reference": "https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md"
+    },
+    {
+      "name": "cosmic-spherex-pipeline",
+      "origin": "project-authored",
+      "local_path": ".agents/skills/cosmic-spherex-pipeline"
+    },
+    {
+      "name": "cosmic-api-contracts",
+      "origin": "project-authored",
+      "local_path": ".agents/skills/cosmic-api-contracts"
+    },
+    {
+      "name": "cosmic-reproducible-experiments",
+      "origin": "project-authored",
+      "local_path": ".agents/skills/cosmic-reproducible-experiments"
+    }
+  ]
+}

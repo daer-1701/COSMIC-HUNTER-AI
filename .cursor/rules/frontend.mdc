@@ -1,0 +1,13 @@
+---
+description: Interfaz científica Next.js con claridad, accesibilidad y carga controlada.
+globs: apps/web/**
+alwaysApply: false
+---
+
+Lee apps/web/README.md y usa vercel-react-best-practices al implementar React/Next.
+Usa web-design-guidelines cuando la tarea pida revisar UI o accesibilidad.
+Conserva TanStack Query para estado remoto. Aladin y Plotly se cargan en componentes
+cliente de forma diferida; el navegador recibe previews y metadatos acotados.
+Muestra unidades, época, procedencia, incertidumbre y estados vacíos/errores reales.
+Blink temporal con pausa, navegación por teclado y movimiento reducido. No presentar
+imágenes generadas por IA como observaciones astronómicas.
