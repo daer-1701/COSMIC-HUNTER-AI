@@ -1,0 +1,39 @@
+{
+  "name": "cosmic-hunter-web",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "vitest run",
+    "generate:api": "openapi-typescript ../../packages/shared/openapi.json -o src/lib/schema.d.ts"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.90.7",
+    "aladin-lite": "^3.9.2-beta",
+    "next": "^15.5.6",
+    "plotly.js-basic-dist": "^3.1.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@tailwindcss/postcss": "^4.1.16",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@types/node": "^24.10.0",
+    "@types/plotly.js": "^3.0.8",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react": "^6.3.0",
+    "eslint": "^9.39.0",
+    "eslint-config-next": "^15.5.6",
+    "happy-dom": "^20.0.10",
+    "openapi-typescript": "^7.10.1",
+    "tailwindcss": "^4.1.16",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.6"
+  }
+}
