@@ -61,6 +61,315 @@
             }
           },
           "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/sky/search": {
+      "post": {
+        "tags": [
+          "observations"
+        ],
+        "summary": "Sky Search",
+        "description": "Live SPHEREx search against IRSA SIA2; lists observations, never downloads FITS.",
+        "operationId": "sky_search_v1_sky_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SkySearchQuery"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway Timeout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/examples": {
+      "get": {
+        "tags": [
+          "examples"
+        ],
+        "summary": "List Examples",
+        "description": "The five challenge targets from cached manifests; never queries IRSA.",
+        "operationId": "list_examples_v1_examples_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ExampleResponse"
+                  },
+                  "type": "array",
+                  "title": "Response List Examples V1 Examples Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/examples/{slug}": {
+      "get": {
+        "tags": [
+          "examples"
+        ],
+        "summary": "Get Example",
+        "operationId": "get_example_v1_examples__slug__get",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          },
+          {
+            "name": "detector",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Keep only frames with this exact detector value",
+              "title": "Detector"
+            },
+            "description": "Keep only frames with this exact detector value"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExampleResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/examples/{slug}/summary": {
+      "post": {
+        "tags": [
+          "examples"
+        ],
+        "summary": "Summarize Example",
+        "description": "Gemini explains the cached manifest of one target, citing numbered evidence.\n\nPaid call: runs only when GEMINI_ENABLED=true, prices and a USD budget are set, and\nthe worst-case cost fits in the remaining budget. Output never changes any result.",
+        "operationId": "summarize_example_v1_examples__slug__summary_post",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SummaryResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Gateway Timeout"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/frames/{frame_id}": {
+      "get": {
+        "tags": [
+          "frames"
+        ],
+        "summary": "Get Frame",
+        "operationId": "get_frame_v1_frames__frame_id__get",
+        "parameters": [
+          {
+            "name": "frame_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Frame Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "image/png": {}
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
             "description": "Validation Error",
             "content": {
               "application/json": {
@@ -76,6 +385,168 @@
   },
   "components": {
     "schemas": {
+      "ErrorResponse": {
+        "properties": {
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "detail",
+          "request_id"
+        ],
+        "title": "ErrorResponse"
+      },
+      "EvidenceLine": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Tag cited in the summary text, e.g. E1"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "text"
+        ],
+        "title": "EvidenceLine"
+      },
+      "ExampleResponse": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "const": "cache",
+            "title": "Source",
+            "default": "cache"
+          },
+          "queried_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Queried At",
+            "description": "When the cached archive query was made"
+          },
+          "query": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SkySearchQuery"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Null until the target manifest exists"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "detectors": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Detectors",
+            "description": "Distinct detector values in order of first appearance, before filtering"
+          },
+          "observations": {
+            "items": {
+              "$ref": "#/components/schemas/Observation"
+            },
+            "type": "array",
+            "title": "Observations"
+          },
+          "slug": {
+            "type": "string",
+            "enum": [
+              "barnards-star",
+              "epsilon-indi-b",
+              "wise-0855",
+              "rw-aurigae",
+              "r-draconis"
+            ],
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "coord_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coord Source"
+          },
+          "coord_epoch": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coord Epoch"
+          },
+          "comparable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comparable",
+            "description": "Whether at least two frames can be animated together"
+          },
+          "comparison_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comparison Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "queried_at",
+          "query",
+          "slug",
+          "name"
+        ],
+        "title": "ExampleResponse",
+        "description": "A cached search for one of the challenge targets; never a live archive query."
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -88,6 +559,147 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "Observation": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Stable identifier used by /v1/frames/{id}"
+          },
+          "obs_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Obs Id",
+            "description": "Archive observation identifier, copied verbatim"
+          },
+          "mjd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mjd",
+            "description": "Observation time as published; scale in time_scale"
+          },
+          "time_scale": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Scale"
+          },
+          "iso_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iso Time"
+          },
+          "collection": {
+            "type": "string",
+            "enum": [
+              "spherex_dr1",
+              "spherex_qr3"
+            ],
+            "title": "Collection"
+          },
+          "detector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detector"
+          },
+          "band": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Band"
+          },
+          "flags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Flags"
+          },
+          "preview_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preview Url",
+            "description": "API path to a PNG preview, or null if none"
+          },
+          "hdu": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hdu",
+            "description": "Original FITS HDU from the cached manifest"
+          },
+          "sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sha256",
+            "description": "Original FITS SHA-256, not the PNG checksum"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "obs_id",
+          "mjd",
+          "time_scale",
+          "iso_time",
+          "collection",
+          "detector",
+          "band",
+          "preview_url"
+        ],
+        "title": "Observation"
       },
       "ObservationQuery": {
         "properties": {
@@ -183,6 +795,193 @@
           "url"
         ],
         "title": "QueryPlan"
+      },
+      "SearchResponse": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "live",
+              "cache"
+            ],
+            "title": "Source"
+          },
+          "queried_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Queried At"
+          },
+          "query": {
+            "$ref": "#/components/schemas/SkySearchQuery"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "detectors": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Detectors",
+            "description": "Distinct detector values in order of first appearance, before filtering"
+          },
+          "observations": {
+            "items": {
+              "$ref": "#/components/schemas/Observation"
+            },
+            "type": "array",
+            "title": "Observations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source",
+          "queried_at",
+          "query"
+        ],
+        "title": "SearchResponse"
+      },
+      "SkySearchQuery": {
+        "properties": {
+          "ra_deg": {
+            "type": "number",
+            "exclusiveMaximum": 360.0,
+            "minimum": 0.0,
+            "title": "Ra Deg",
+            "description": "ICRS right ascension in degrees"
+          },
+          "dec_deg": {
+            "type": "number",
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Dec Deg",
+            "description": "ICRS declination in degrees"
+          },
+          "radius_deg": {
+            "type": "number",
+            "maximum": 0.5,
+            "exclusiveMinimum": 0.0,
+            "title": "Radius Deg",
+            "description": "Cone radius in degrees"
+          },
+          "collection": {
+            "type": "string",
+            "enum": [
+              "spherex_dr1",
+              "spherex_qr3"
+            ],
+            "title": "Collection",
+            "default": "spherex_dr1"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ra_deg",
+          "dec_deg",
+          "radius_deg"
+        ],
+        "title": "SkySearchQuery"
+      },
+      "SummaryResponse": {
+        "properties": {
+          "slug": {
+            "type": "string",
+            "enum": [
+              "barnards-star",
+              "epsilon-indi-b",
+              "wise-0855",
+              "rw-aurigae",
+              "r-draconis"
+            ],
+            "title": "Slug"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          },
+          "cached": {
+            "type": "boolean",
+            "title": "Cached",
+            "description": "True when served from the in-process summary cache"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "cited": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Cited"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceLine"
+            },
+            "type": "array",
+            "title": "Evidence"
+          },
+          "usage": {
+            "$ref": "#/components/schemas/SummaryUsage"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "default": "AI-generated explanation of archive metadata. It does not confirm any object or motion."
+          }
+        },
+        "type": "object",
+        "required": [
+          "slug",
+          "model",
+          "generated_at",
+          "cached",
+          "text",
+          "cited",
+          "evidence",
+          "usage"
+        ],
+        "title": "SummaryResponse",
+        "description": "Gemini's plain-language explanation of a cached target's evidence. Not a measurement."
+      },
+      "SummaryUsage": {
+        "properties": {
+          "input_tokens": {
+            "type": "integer",
+            "title": "Input Tokens"
+          },
+          "output_tokens": {
+            "type": "integer",
+            "title": "Output Tokens"
+          },
+          "cost_usd": {
+            "type": "number",
+            "title": "Cost Usd"
+          },
+          "budget_remaining_usd": {
+            "type": "number",
+            "title": "Budget Remaining Usd"
+          }
+        },
+        "type": "object",
+        "required": [
+          "input_tokens",
+          "output_tokens",
+          "cost_usd",
+          "budget_remaining_usd"
+        ],
+        "title": "SummaryUsage"
       },
       "ValidationError": {
         "properties": {

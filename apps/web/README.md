@@ -1,12 +1,45 @@
-# Planned frontend
+# Cosmic Hunter web
 
-Next.js App Router + TypeScript + React + Tailwind + shadcn/ui. This directory does
-not yet contain a runnable application or installed Node dependencies. Build the
-frontend after validating the vertical slice with real data. Generate the client
-from OpenAPI and use TanStack Query for queries. Load Aladin Lite and Plotly in client
-components. Never expose Gemini or secrets through NEXT_PUBLIC_.
+Next.js application for the SPHEREx explorer. Interface text is English.
 
-Views: landing page, explorer, temporal comparison, detections, evidence dossier,
-trajectory, copilot, and review. Each view must display data provenance and status;
-empty states must not be filled with invented scientific results. Use English for
-all interface text, validation messages, accessibility labels, and exported reports.
+The browser calls the API at `NEXT_PUBLIC_API_BASE_URL` (default `http://localhost:8000`).
+Run the web app on port 3000 so the API CORS rule applies. Types in `src/lib/schema.d.ts`
+are generated from the OpenAPI document; do not edit that file by hand.
+
+`POST /v1/sky/search` runs a live IRSA search. `GET /v1/examples` serves cached targets
+and does not call IRSA. A missing `preview_url` stays text. Timestamps with a null
+`time_scale` are shown as published, not as UTC. `POST /v1/examples/{slug}/summary`
+returns 503 as “AI summary unavailable” when the model is off.
+
+## Run
+
+From the repository root, start the API:
+
+```powershell
+uv run uvicorn cosmic_api.main:app --reload --port 8000
+```
+
+From `apps/web`:
+
+```powershell
+npm install
+npm run generate:api
+npm test
+npm run dev
+```
+
+Open http://localhost:3000. Search from Explore submits the real query plan. Compare,
+candidates, review, and copilot stay empty until those endpoints exist.
+
+Aladin Lite is loaded from the `aladin-lite` package when a valid ICRS position is
+entered. The public CDS script path returned 404 during implementation. The map
+is a DSS context view, not a SPHEREx exposure. Plotly loads only if measurement
+points are passed to the trajectory chart. The current pages pass none.
+
+## Checks
+
+```powershell
+npm test
+npm run lint
+npm run build
+```
