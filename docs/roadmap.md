@@ -1,22 +1,22 @@
-# Plan por hitos y criterios de salida
+# Milestones and exit criteria
 
-| Fase | Salida verificable | Estado |
+| Phase | Verifiable output | Status |
 | --- | --- | --- |
-| 1 | arquitectura, contratos, SQL, base API, CI y selección inicial | Base lista; rúbrica oficial pendiente por 502 |
-| 2 | consulta real, VOTable, dos visitas compatibles, FITS/checksum y visualización | Pendiente |
-| 3 | WCS/máscaras, PSF/espectro, alineación y comparación documentadas | Pendiente |
-| 4 | baseline y asociaciones con incertidumbre y pruebas geométricas | Pendiente |
-| 5 | objetos conocidos, inyecciones etiquetadas y reporte sin fuga de datos | Pendiente |
-| 6 | priorización explicable; IA solo con etiquetas y mejora evaluada | Pendiente |
-| 7 | Next.js, Aladin, blink temporal, trayectorias y expediente | Pendiente |
-| 8 | Gemini con reserva atómica, cuotas y prueba de techo USD 4 | Pendiente |
-| 9 | autenticación/revisión, pruebas de integración y operación | Pendiente |
-| 10 | originalidad contrastada, demo reproducible y presentación en inglés | Pendiente |
+| 1 | Architecture, contracts, SQL, API foundation, CI, and initial data selection | Foundation ready; official judging rubric unverified following HTTP 502 |
+| 2 | Live query, VOTable, two compatible visits, FITS/checksum, and visualization | Pending |
+| 3 | Documented WCS/masks, PSF/spectrum, alignment, and comparison | Pending |
+| 4 | Baseline and associations with uncertainties and geometry tests | Pending |
+| 5 | Known objects, labeled injections, and evaluation without data leakage | Pending |
+| 6 | Explainable ranking; AI only with labels and evaluated improvement | Pending |
+| 7 | Next.js, Aladin, temporal blink, trajectories, and evidence dossier | Pending |
+| 8 | Gemini with atomic reservations, quotas, and a tested USD 4 ceiling | Pending |
+| 9 | Authentication/review, integration tests, and operations | Pending |
+| 10 | Originality assessment, reproducible demo, and English presentation | Pending |
 
-MVP vertical prioritario: una región pequeña → dos visitas compatibles → blink →
-mediciones baseline → objeto conocido → expediente exportable. No comprometer un
-escaneo autónomo de todo el cielo antes de medir cobertura/coste/latencia.
+Priority vertical MVP: one small region -> two compatible visits -> blink -> baseline
+measurements -> known object -> exportable evidence dossier. Do not commit to autonomous
+all-sky scanning before measuring coverage, cost, and latency.
 
-Antes de publicar: probar restauración y CI remoto, acordar licencia, verificar
-rúbrica oficial y recursos, atribuciones de datos, límites y resultados medidos.
-La originalidad es una hipótesis de diseño hasta comparar trabajos existentes.
+Before publication: test restoration and remote CI, select a license, verify official
+requirements/resources and judging criteria, and document data attribution, limitations,
+and measured results. Originality remains a design hypothesis until compared with existing work.

@@ -1,16 +1,16 @@
 # Cosmic Hunter AI
 
-Base de arquitectura para investigar movimiento aparente en observaciones SPHEREx.
-Preparada a partir del brief del equipo, el 14 de noviembre de 2026.
+Architecture foundation for investigating apparent motion in SPHEREx observations.
+Prepared from the team's brief on November 14, 2026.
 
-**Estado: fase 1.** API mínima ejecutable y contratos probados. Todavía no hay
-frontend funcional, descarga de FITS, detector, resultados científicos ni llamadas a Gemini.
-No constituye una herramienta de descubrimiento validada.
+**Status: phase 1.** A runnable minimal API and tested contracts. There is no working
+frontend, FITS downloader, detector, scientific result, or Gemini integration yet.
+This is not a validated discovery tool.
 
-## Inicio local
+## Local setup
 
-Requisitos: Git, Python 3.12 o 3.13 y [uv](https://docs.astral.sh/uv/).
-Desde la raíz, en PowerShell:
+Requirements: Git, Python 3.12 or 3.13, and [uv](https://docs.astral.sh/uv/).
+From the repository root in PowerShell:
 
 ```powershell
 Copy-Item .env.example .env
@@ -18,14 +18,14 @@ uv sync --frozen
 uv run uvicorn cosmic_api.main:app --reload
 ```
 
-Documentación interactiva: http://localhost:8000/docs.
-`POST /v1/observations/query-plan` construye una URL SIA2 de IRSA; no ejecuta la consulta.
+Interactive documentation: http://localhost:8000/docs.
+`POST /v1/observations/query-plan` builds an IRSA SIA2 URL; it does not run the query.
 
 ```json
 {"ra_deg":127.69,"dec_deg":-39.17,"radius_deg":0.01,"collection":"spherex_dr1"}
 ```
 
-Verificación:
+Verification:
 
 ```powershell
 uv run ruff check .
@@ -34,44 +34,50 @@ uv run pytest -q
 uv run python scripts/export_openapi.py
 ```
 
-Docker Desktop con motor Linux: `docker compose up --build`. Incluye API,
-PostgreSQL y Redis locales; la API de esta fase no utiliza aún la base ni la cola.
-El SQL se aplica solo al crear el volumen PostgreSQL por primera vez.
-No es una configuración de producción. S3 y workers se incorporarán con el pipeline.
+With Docker Desktop's Linux engine running: `docker compose up --build`. This starts
+the local API, PostgreSQL, and Redis; the current API does not use the database or
+queue yet. SQL runs only when the PostgreSQL volume is first created. This is a local
+development configuration. S3 and workers will be added with the processing pipeline.
 
-## Repositorio
+## Repository
 
 ```text
-apps/web/              Next.js previsto; contrato de integración
-services/api/          FastAPI y validación HTTP
-services/astronomy/    construcción de consultas IRSA; futuro FITS/WCS
-services/detection/    límite reservado para baseline y asociación temporal
-services/ai/           límite reservado para clasificación/copiloto
-services/workers/      límite reservado para orquestación Celery
-packages/shared/       OpenAPI generado, fuente del cliente TypeScript futuro
-data/                 archivos locales ignorados; política de datos
-notebooks/            experimentos reproducibles futuros
-scripts/              exportación de contratos
-tests/                contratos y límites de consultas
-docs/                 arquitectura, ciencia, API y plan
-infrastructure/       contenedores y esquema SQL inicial
+apps/web/              Planned Next.js frontend and integration contract
+services/api/          FastAPI and HTTP validation
+services/astronomy/    IRSA query construction; future FITS/WCS processing
+services/detection/    Reserved boundary for baseline and temporal association
+services/ai/           Reserved boundary for classification and copilot
+services/workers/      Reserved boundary for Celery orchestration
+packages/shared/       Generated OpenAPI; future TypeScript client source
+data/                 Local files excluded from Git; data policy
+notebooks/             Future reproducible experiments
+scripts/               Contract export
+tests/                Query contracts and boundaries
+docs/                 Architecture, science, API, and implementation plan
+infrastructure/        Containers and initial SQL schema
 ```
 
-Lee [arquitectura](docs/architecture.md), [modelo de datos](docs/data-model.md),
-[contratos](docs/api.md), [fuentes y requisitos](docs/research.md),
-[validación científica](docs/science.md) y [fases pendientes](docs/roadmap.md).
-La separación de carpetas no implica que todos los motores estén implementados.
+Read the [architecture](docs/architecture.md), [data model](docs/data-model.md),
+[API contracts](docs/api.md), [sources and requirements](docs/research.md),
+[scientific validation](docs/science.md), and [remaining phases](docs/roadmap.md).
+Separate directories do not mean all engines have been implemented.
 
-## Trabajar con Codex y Cursor
+## Working with Codex and Cursor
 
-Las instrucciones compartidas están en [AGENTS.md](AGENTS.md). Hay cinco skills
-del repositorio en `.agents/skills/` y reglas por módulo en `.cursor/rules/`.
-Lee la [guía de skills y coordinación](docs/agent-tooling.md) para activarlas y
-repartir trabajo entre ambos editores sin sobrescribir cambios.
+Shared instructions are in [AGENTS.md](AGENTS.md). Five repository skills live in
+`.agents/skills/`, with scoped Cursor rules in `.cursor/rules/`. Read the
+[skills and coordination guide](docs/agent-tooling.md) to activate them and divide
+work without overwriting changes.
 
-## Subir a Git
+The [three-person project plan](docs/team-plan.md) assigns owners, tasks,
+dependencies, and all 20 deliverables from the brief.
 
-El repositorio local se inicializa en `main`; no se configura un remoto sin una URL.
-Revisa `git status` y sigue [la guía de publicación](docs/git.md).
-No se incluyen credenciales, FITS ni modelos. La licencia de distribución sigue
-pendiente de decisión del equipo; no asumir permiso de reutilización del código.
+English is the default for documentation, agent instructions, code comments,
+API messages, interface text, reports, and presentation materials.
+
+## Git publication
+
+The repository uses `main`. Inspect `git status` and existing remotes before following
+the [publication guide](docs/git.md). No credentials, FITS files, or models belong in
+Git. The team has not selected a distribution license; do not assume permission to
+reuse project code.

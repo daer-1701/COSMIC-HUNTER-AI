@@ -1,4 +1,4 @@
-# Contratos compartidos
+# Shared contracts
 
-`openapi.json` se genera con `uv run python scripts/export_openapi.py`.
-No editar a mano. El cliente TypeScript se generará al crear apps/web.
+Generate `openapi.json` with `uv run python scripts/export_openapi.py`.
+Do not edit it manually. The TypeScript client will be generated when apps/web is built.

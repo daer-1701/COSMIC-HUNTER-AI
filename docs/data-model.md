@@ -1,8 +1,8 @@
-# Modelo de datos
+# Data model
 
-El esquema físico inicial está en `infrastructure/db/001_initial.sql`.
-Tiene 13 entidades del brief más `job_inputs`, que preserva la relación muchos a
-muchos entre ejecuciones y productos. No hay ORM ni migraciones evolutivas todavía.
+The initial physical schema is in `infrastructure/db/001_initial.sql`. It contains
+the brief's 13 entities plus `job_inputs`, preserving the many-to-many relationship
+between runs and products. There is no ORM or schema-evolution migration layer yet.
 
 ```mermaid
 erDiagram
@@ -23,21 +23,21 @@ erDiagram
   candidate_objects ||--o{ ai_usage_records : explains
 ```
 
-UUIDs para identidad; mediciones y parámetros versionados por ejecución. FKs impiden
-asociaciones entre candidatos y fuentes de jobs diferentes. Evitar borrados en
-cascada que destruyan evidencia. Reportes nuevos generan versión nueva; no reemplazar
-originales. Revisiones únicas por usuario/candidato en MVP; historial de revisiones
-será una tabla adicional cuando se habilite edición.
+Use UUIDs for identity and version measurements/parameters by run. Foreign keys prevent
+associations between candidates and sources from different jobs. Avoid cascading deletes
+that destroy evidence. New reports create a new version rather than replacing originals.
+The MVP allows one review per user/candidate; add a review-history table when editing
+is enabled.
 
-Índices iniciales: épocas, posiciones, estados/prioridades, cola y claves únicas de
-proveniencia/idempotencia. El B-tree RA/Dec sirve para filtros simples, no resuelve
-búsquedas esféricas ni el cruce 0/360. Introducir HEALPix/Q3C tras medir el volumen.
+Initial indexes cover epochs, positions, states/priorities, queue ordering, and unique
+provenance/idempotency keys. The RA/Dec B-tree supports simple filters; it does not solve
+spherical searches or the 0/360 wraparound. Introduce HEALPix/Q3C after measuring volume.
 
-JSONB conserva encabezados, respuestas y matrices sin perder campos originales.
-La capa científica debe validar dimensiones, unidades, finitud, positividad de
-covarianzas y significado por versión. El SQL no valida estructura interna de JSONB.
-Adoptar tipos/constraints más específicos tras inspeccionar FITS reales.
-No almacenar matrices FITS, contraseñas o API keys en estas tablas.
+JSONB preserves headers, responses, and matrices without losing original fields. The
+scientific layer must validate dimensions, units, finiteness, covariance positivity,
+and versioned meaning. SQL does not validate internal JSONB structure. Adopt more
+specific types/constraints after inspecting real FITS files. Do not store FITS arrays,
+passwords, or API keys in these tables.
 
-`ai_usage_records` permite reservas/cargos, pero requiere una cuenta de presupuesto
-con bloqueo transaccional en fase 8; la tabla por sí sola no limita gasto.
+`ai_usage_records` supports reservations/charges but needs a budget account with
+transactional locking in phase 8; the table alone does not enforce a spending limit.

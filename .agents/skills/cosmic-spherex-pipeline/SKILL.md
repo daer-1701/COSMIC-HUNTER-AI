@@ -1,51 +1,52 @@
 ---
 name: cosmic-spherex-pipeline
-description: Implementar o revisar ingestión IRSA SPHEREx, lectura FITS, WCS, compatibilidad entre épocas y mediciones de movimiento aparente en Cosmic Hunter AI. Usar para código científico de astronomy o detection.
+description: Implement or review Cosmic Hunter AI IRSA SPHEREx ingestion, FITS reading, WCS, compatibility across epochs, and apparent-motion measurements. Use for scientific astronomy or detection code.
 ---
 
-# Pipeline SPHEREx verificable
+# Verifiable SPHEREx pipeline
 
-Trabaja desde la raíz del repositorio. Lee docs/research.md, docs/science.md y el
-módulo afectado. Comprueba qué está implementado antes de extenderlo.
+Work from the repository root. Read docs/research.md, docs/science.md, and the affected
+module. Check implemented behavior before extending it. Write explanations and outputs
+in English while preserving original scientific metadata.
 
-## Elegir entradas
+## Select inputs
 
-Verifica documentación vigente de IRSA sobre colección, versión y HDUs antes de
-implementar acceso nuevo. Punto de partida registrado: DR1/QR3; no asumir que sigue
-vigente sin comprobarlo. Construir una URL SIA2 no equivale a descargar ni interpretar
-una respuesta VOTable. Inspeccionar errores/OVERFLOW del servicio y límites de consulta.
-Conservar consulta, respuesta, fecha y versión del producto.
+Check current IRSA collection, version, and HDU documentation before implementing new
+access. The recorded starting point is DR1/QR3; do not assume it remains current without
+checking. Building a SIA2 URL is not downloading or interpreting a VOTable response.
+Inspect service errors/OVERFLOW and query limits. Preserve query, response, date, and
+product version.
 
-En descarga, validar hosts/redirecciones, tamaño máximo y timeout; escribir temporal
-y publicar solo tras validar archivo/checksum. No desactivar verificación TLS.
-Los archivos se guardan fuera de Git y las matrices grandes fuera de PostgreSQL.
+For downloads, validate hosts/redirects, maximum size, and timeouts. Write temporary
+files and publish only after file/checksum validation. Do not disable TLS verification.
+Keep files outside Git and large arrays outside PostgreSQL.
 
-## Inspeccionar y comparar
+## Inspect and compare
 
-No asumir que HDU 0 contiene la imagen o fijar nombres de extensiones sin inspección.
-Identificar imagen, incertidumbre, máscara, WCS y respuesta espectral según el producto.
-Preservar encabezados originales y unidades. Verificar WCS con transformación de ida
-y vuelta, convención de píxel y prueba de posición conocida. Época/escala temporal y
-observador deben quedar explícitos; no confundir MJD con JD ni grados con radianes.
+Do not assume HDU 0 contains the image or hardcode extension names without inspection.
+Identify image, uncertainty, mask, WCS, and spectral response according to the product.
+Preserve original headers and units. Verify WCS through round-trip transformations,
+pixel convention, and a known-position check. Make epoch/time scale and observer explicit;
+do not confuse MJD with JD or degrees with radians.
 
-Antes de diferencia/alineación, evaluar solapamiento, longitud de onda efectiva por
-píxel, calibración, PSF, saturación y flags. Documentar motivos de exclusión. Reproyectar
-con máscaras y propagar errores; interpolación crea correlaciones. No tratar ruido
-reproyectado como independiente. Preservar originales; normalización de pantalla no
-debe sustituir intensidades científicas.
+Before differencing/alignment, assess overlap, per-pixel effective wavelength,
+calibration, PSF, saturation, and flags. Document exclusion reasons. Reproject with
+masks and propagate errors; interpolation creates correlations. Do not treat reprojected
+noise as independent. Preserve originals; display normalization must not replace
+scientific intensities.
 
-## Medir movimiento
+## Measure motion
 
-Baseline de extracción/asociación antes de IA. Trabajar en esfera/plano tangente con
-Astropy; controlar cruce RA 0/360 y polos. Estimar movimiento con fechas reales,
-covarianzas, residuos e hipótesis de paralaje/observador. Una diferencia entre píxeles
-o una asociación de dos épocas no confirma una trayectoria física.
-Comparar contra objetos conocidos usando época y geometría del observador. Registrar
-matched/no_match/unavailable/error por separado. No inferir descubrimiento por exclusión.
+Establish source extraction/association baselines before AI. Use spherical geometry or
+a tangent plane with Astropy; handle RA 0/360 wraparound and poles. Estimate motion with
+actual dates, covariances, residuals, and parallax/observer hypotheses. A pixel difference
+or a two-epoch association does not confirm a physical trajectory. Compare with known
+objects at the correct epoch and observer geometry. Record matched/no_match/unavailable/error
+separately. Do not infer discovery by exclusion.
 
-## Evidencia de entrega
+## Deliver evidence
 
-Registrar IDs originales, checksums, versiones, parámetros, commit y entorno junto a
-mediciones y errores. Probar límites geométricos y rechazo de productos incompatibles
-con fixtures pequeñas etiquetadas; ejecutar integración acotada con datos reales si
-se dispone de ellos. Informar qué fue medido, qué fue sintético y qué falta validar.
+Record original IDs, checksums, versions, parameters, commit, and environment alongside
+measurements and errors. Test geometry boundaries and rejection of incompatible products
+with small labeled fixtures. Run bounded integration against real data when available.
+State what was measured, what was synthetic, and what still needs validation.

@@ -1,45 +1,44 @@
-# Fuentes, alcance y supuestos
+# Sources, scope, and assumptions
 
-Consulta realizada el 2026-11-14. No se descargaron observaciones científicas.
+Research performed on 2026-11-14. No scientific observations were downloaded.
 
-## Requisitos y verificación pendiente
+## Requirements and pending verification
 
-La [sede Cochabamba](https://spaceappschallenge-cbba.com/#retos) describe una herramienta
-web pública de visualización SPHEREx y comparación de posiciones entre fechas.
-Su enlace lleva al [reto oficial Planet X and SPHEREx](https://www.spaceappschallenge.org/2026/challenges/planet-x-and-spherex/).
-La página oficial devolvió HTTP 502 en dos intentos. Por ello no se consideran
-verificados el enunciado completo, recursos obligatorios, entregables ni rúbrica.
-Revalidarlos antes de cerrar el alcance para concurso. La sede es una referencia
-local y no sustituye la rúbrica oficial. No se atribuyen al reto los 20 entregables
-del brief ni sus siete motores.
+The [Cochabamba event site](https://spaceappschallenge-cbba.com/#retos) describes a
+public SPHEREx visualization tool for comparing positions across dates. It links to
+the [official Planet X and SPHEREx challenge](https://www.spaceappschallenge.org/2026/challenges/planet-x-and-spherex/).
+The official page returned HTTP 502 on two attempts. The full statement, mandatory
+resources, deliverables, and judging rubric therefore remain unverified. Recheck them
+before finalizing competition scope. The local event site does not replace the official
+rubric. Do not attribute the team's 20 deliverables or seven engines to the official challenge.
 
-Ampliaciones del equipo: Autonomous Moving Object Investigator, detección,
-clasificación, expedientes, validación por catálogos, Gemini, colaboración y métricas.
-La arquitectura incorpora estas propuestas con implementación gradual.
+Team extensions: Autonomous Moving Object Investigator, detection, classification,
+evidence dossiers, catalog validation, Gemini, collaboration, and metrics. The
+architecture incorporates these proposals through incremental implementation.
 
-## Selección de datos
+## Data selection
 
-[IRSA: releases](https://irsa.ipac.caltech.edu/spherex-archive-documentation/spherex-data-releases/)
-recomienda DR1 y QR3 para trabajo nuevo; sustituyen QR2. Registrar siempre release y
-calibración; no mezclar versiones sin un estudio de compatibilidad.
+[IRSA releases](https://irsa.ipac.caltech.edu/spherex-archive-documentation/spherex-data-releases/)
+recommends DR1 and QR3 for new work; they supersede QR2. Always record release and
+calibration, and do not mix versions without a compatibility study.
 
-[IRSA: acceso](https://irsa.ipac.caltech.edu/spherex-archive-documentation/spherex-data-access/)
-documenta SIA2 en `https://irsa.ipac.caltech.edu/SIA`, con colecciones
-`spherex_dr1` y `spherex_qr3`; el constructor inicial limita su soporte a ellas.
-La descarga y lectura de respuestas VOTable queda para fase 2.
+[IRSA access documentation](https://irsa.ipac.caltech.edu/spherex-archive-documentation/spherex-data-access/)
+describes SIA2 at `https://irsa.ipac.caltech.edu/SIA`, including `spherex_dr1` and
+`spherex_qr3`; the initial query builder supports only these collections. Downloading
+and parsing VOTable responses remain phase 2 work.
 
-Decisión del equipo: comenzar con exposiciones individuales para conservar épocas;
-usar cubos agregados solo como contexto hasta demostrar que conservan la información
-temporal requerida. La disponibilidad de visitas compatibles debe comprobarse por región.
-No se asume que una etiqueta de detector equivalga a una banda uniforme por píxel.
+Team decision: start with individual exposures to preserve epochs. Use aggregated
+cubes only for context until their suitability for temporal analysis is demonstrated.
+Verify compatible repeat visits per region. A detector label is not assumed to mean
+a uniform spectral band at every pixel.
 
-## Fuentes técnicas primarias
+## Primary technical sources
 
-- [Portal de misión IRSA](https://irsa.ipac.caltech.edu/Missions/spherex.html).
-- [Productos SPHEREx](https://github.com/Caltech-IPAC/spherex-archive-documentation/blob/main/documentation/spherex_data_products.md): revisar HDUs y calibraciones antes de implementar lectura.
-- [Next.js: instalación](https://nextjs.org/docs/app/getting-started/installation): referencia al crear frontend.
-- [Celery: Redis](https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html): entregas repetidas y timeouts.
+- [IRSA mission portal](https://irsa.ipac.caltech.edu/Missions/spherex.html).
+- [SPHEREx products](https://github.com/Caltech-IPAC/spherex-archive-documentation/blob/main/documentation/spherex_data_products.md): inspect HDUs and calibrations before implementing readers.
+- [Next.js installation](https://nextjs.org/docs/app/getting-started/installation): reference for frontend setup.
+- [Celery Redis documentation](https://docs.celeryq.dev/en/stable/getting-started/backends-and-brokers/redis.html): repeated delivery and timeouts.
 
-Hipótesis no comprobadas: sensibilidad a movimiento en un intervalo determinado,
-cantidad de candidatos, cobertura temporal útil, calidad astrométrica y reducción de
-falsos positivos. No se publican cifras antes de realizar experimentos.
+Unverified assumptions: motion sensitivity over a given interval, candidate count,
+useful temporal coverage, astrometric quality, and false-positive reduction. Do not
+publish figures before running experiments.

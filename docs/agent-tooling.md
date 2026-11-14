@@ -1,104 +1,103 @@
-# Skills y reglas para Codex + Cursor
+# Skills and rules for Codex + Cursor
 
-Selección revisada el 2026-11-14 para el estado real del proyecto. Se priorizó
-encaje con el stack, procedencia identificable, portabilidad y alcance pequeño.
-No es un ranking universal ni una garantía de calidad científica.
+Selection reviewed on 2026-11-14 for the project's actual stage. Priorities were stack
+fit, identifiable provenance, portability, and narrow scope. This is not a universal
+ranking or a guarantee of scientific quality.
 
-## Skills instaladas en el repositorio
+## Repository skills
 
-| Skill | Origen | Usarla cuando |
+| Skill | Source | When to use |
 | --- | --- | --- |
-| vercel-react-best-practices | Vercel | Implementar/revisar React y Next.js: carga, render y consultas |
-| web-design-guidelines | Vercel | Revisar UI, accesibilidad y experiencia de navegación |
-| cosmic-spherex-pipeline | Creada para este proyecto | IRSA, FITS, WCS, compatibilidad y movimiento aparente |
-| cosmic-api-contracts | Creada para este proyecto | FastAPI, contratos, jobs, persistencia y límites del copiloto |
-| cosmic-reproducible-experiments | Creada para este proyecto | Notebooks, evaluación, baseline e inyecciones etiquetadas |
+| vercel-react-best-practices | Vercel | Implement/review React and Next.js loading, rendering, and fetching |
+| web-design-guidelines | Vercel | Review UI, accessibility, and navigation experience |
+| cosmic-spherex-pipeline | Project-authored | IRSA, FITS, WCS, compatibility, and apparent motion |
+| cosmic-api-contracts | Project-authored | FastAPI, contracts, jobs, persistence, and copilot limits |
+| cosmic-reproducible-experiments | Project-authored | Notebooks, evaluation, baseline, and labeled injections |
 
-Las tres skills del proyecto proceden de la arquitectura y requisitos del equipo;
-no son skills oficiales de NASA ni de Astropy. Una skill guía el trabajo: no instala
-la librería científica, implementa un detector ni demuestra precisión por sí misma.
+The three project skills derive from team architecture and requirements; they are
+not official NASA or Astropy skills. A skill guides work: it does not install a
+scientific library, implement a detector, or prove accuracy by itself.
 
-Se consultó el catálogo disponible con skill-installer. El repositorio
-[openai/skills](https://github.com/openai/skills) declara estar obsoleto y remite a
-[openai/plugins](https://github.com/openai/plugins). Por eso no se instalaron copias
-antiguas de skills de notebooks, CI o seguridad desde ese catálogo. Las opciones
-actuales revisadas incluyen dependencias de otros plugins; para este alcance se
-prefirieron workflows locales sin exigir servicios adicionales.
+The available catalog was inspected with skill-installer.
+[openai/skills](https://github.com/openai/skills) declares itself deprecated and points
+to [openai/plugins](https://github.com/openai/plugins). Older notebook, CI, and security
+skills were therefore not installed from that catalog. Current options inspected
+included other plugin dependencies; this setup favors local workflows without requiring
+additional services.
 
-Las dos skills externas proceden de
-[vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills), fijadas al
-commit `1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62`. El manifiesto
-`.agents/skills-sources.json` conserva rutas y revisión. Se preservan sus metadatos
-de autoría/licencia; no atribuir estas guías al equipo Cosmic Hunter AI.
-Para actualizar, revisar primero el diff upstream y después sustituir de forma
-deliberada la revisión del manifiesto. No descargar y ejecutar automáticamente código
-de terceros cada vez que se abra el proyecto.
+The two external skills come from
+[vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills), pinned to commit
+`1a2c79d4e6c4a2283dc2c614b6538cbe1ed5ca62`. `.agents/skills-sources.json` records source
+paths and revision. Preserve authorship/license metadata; do not attribute these guides
+to the Cosmic Hunter AI team. To update, inspect the upstream diff before deliberately
+changing the manifest revision. Do not automatically download and execute third-party
+code whenever the project opens.
 
-`web-design-guidelines` consulta una guía remota vigente al revisar interfaces;
-la revisión del paquete está fijada, pero ese contenido remoto puede cambiar.
-Registrar URL/revisión consultada si se necesita reproducir una auditoría.
+`web-design-guidelines` fetches current remote guidance during interface reviews. The
+package revision is pinned, but that remote content can change. Record the consulted
+URL/revision when an audit needs to be reproducible.
 
-## Activación
+## Activation
 
-El [formato de personalización de Codex](https://learn.chatgpt.com/docs/customization/overview)
-admite AGENTS.md y skills del repositorio en `.agents/skills`.
-La [documentación de Cursor](https://cursor.com/docs/skills) también reconoce esa
-carpeta. Así se mantiene una sola copia por skill. Abrir esta raíz como proyecto en
-ambas herramientas; las skills se esperan disponibles en un nuevo turno/sesión tras
-redescubrir el repositorio. Comprobar la lista del editor: aún no se ha verificado
-la carga en una sesión de Cursor en esta máquina.
+[Codex customization](https://learn.chatgpt.com/docs/customization/overview) supports
+AGENTS.md and repository skills in `.agents/skills`. The
+[Cursor documentation](https://cursor.com/docs/skills) recognizes that directory too,
+allowing one copy per skill. Open this repository root in both tools. Skills should
+be discoverable in a new turn/session after the repository is rediscovered. Check
+the editor list; loading in a local Cursor session has not yet been verified.
 
-Codex: invocar por nombre, por ejemplo `$cosmic-spherex-pipeline`.
-Cursor: escribir `/` y buscar el nombre de la skill. Si una versión antigua no la
-descubre, se puede pedir que lea directamente el SKILL.md correspondiente sin
-duplicar archivos. Actualizar el editor cuando se necesite descubrimiento nativo.
+Codex: invoke by name, for example `$cosmic-spherex-pipeline`.
+Cursor: type `/` and search for the skill name. If an older version does not discover
+it, ask the agent to read its SKILL.md directly without duplicating files. Update the
+editor when native discovery is required.
 
-## Reglas
+## Rules
 
-AGENTS.md es la guía central para ambos asistentes: límites de arquitectura,
-integridad científica, seguridad, comandos de comprobación y coordinación.
-Las [reglas de Cursor](https://cursor.com/docs/rules) se guardan en `.cursor/rules`:
+AGENTS.md is the central guide for both assistants: architecture boundaries, scientific
+integrity, security, verification commands, coordination, and the English language default.
+[Cursor rules](https://cursor.com/docs/rules) live in `.cursor/rules`:
 
-- project.mdc: siempre activa; conduce a la guía central.
-- science.mdc: se adjunta al trabajar en astronomy, detection o notebooks.
-- backend.mdc: API, workers, AI, SQL y contratos.
-- frontend.mdc: interfaz Next.js y visualizaciones científicas.
+- project.mdc: always active; points to the central guide.
+- science.mdc: attached when working on astronomy, detection, or notebooks.
+- backend.mdc: API, workers, AI, SQL, and contracts.
+- frontend.mdc: Next.js interface and scientific visualizations.
 
-Las guías Vercel no cambian decisiones del proyecto: usar TanStack Query aunque un
-ejemplo recomiende SWR. No aplicar consejos de rendimiento a una versión incompatible
-sin comprobarla. Las reglas y skills orientan al modelo; no sustituyen CI,
-autorización, restricciones de red o protección de ramas.
+Vercel guidance does not override project decisions: keep TanStack Query when an
+example recommends SWR. Check version compatibility before applying performance advice.
+Rules and skills guide the model; they do not replace CI, authorization, network
+restrictions, or branch protection.
 
-## Reparto de trabajo recomendado
+## Suggested work allocation
 
-Codex puede encargarse de backend, pipeline, contratos y evaluación; Cursor, de
-interfaz e integración con ese contrato. Ambos pueden hacer cualquiera de esas tareas.
-Importa asignar archivos distintos y un responsable del contrato compartido.
+Codex can handle backend, pipeline, contracts, and evaluation; Cursor can handle the
+interface and contract integration. Either tool can perform either role. Assign
+different files and a shared-contract owner. See docs/team-plan.md for the three-person
+allocation covering the full project.
 
-En el estado actual todavía no hay commit base. Trabajar por turnos en esta carpeta
-hasta crear el primer commit. Después se pueden usar ramas/worktrees separados para
-trabajo simultáneo. Evitar dos agentes escribiendo el mismo archivo o uv.lock.
+Use separate branches/worktrees after a base commit exists; otherwise work in turns
+until the first commit. Inspect actual Git state before choosing the workflow. Avoid
+two agents writing the same file or uv.lock.
 
-Cada entrega debe indicar objetivo logrado, archivos modificados, contrato generado,
-checks ejecutados y limitaciones. El siguiente editor debe inspeccionar estado/diff
-antes de continuar. No confundir cambios presentes con commits o contenido publicado.
+Each handoff should state the outcome, changed files, generated contract, checks run,
+and limitations. The next editor must inspect status/diff before continuing. Distinguish
+local changes, commits, and published content.
 
-## Ejemplos de solicitudes
+## Example requests
 
 ```text
-Codex: usa $cosmic-spherex-pipeline para implementar una consulta IRSA acotada.
-Lee AGENTS.md. Conserva procedencia y prueba fallos del archivo. No descargues
-regiones grandes ni inventes resultados si no hay acceso al servicio.
+Codex: use $cosmic-spherex-pipeline to implement a bounded IRSA query.
+Read AGENTS.md. Preserve provenance and test archive failures. Do not download
+large regions or invent results if the service is unavailable.
 ```
 
 ```text
-Cursor: lee AGENTS.md y usa vercel-react-best-practices para implementar el
-explorador en apps/web consumiendo el contrato OpenAPI existente. Muestra estados
-vacíos y errores reales; no rellenes observaciones con datos ficticios.
+Cursor: read AGENTS.md and use vercel-react-best-practices to implement the
+explorer in apps/web against the existing OpenAPI contract. Show actual empty
+states and errors; do not populate observations with fabricated data.
 ```
 
 ```text
-Codex: usa $cosmic-reproducible-experiments para evaluar el baseline disponible.
-Declara datos y particiones, ejecuta desde cero y separa resultados sintéticos
-de recuperación con objetos conocidos. No afirmes métricas sin ejecución.
+Codex: use $cosmic-reproducible-experiments to evaluate the available baseline.
+Declare data and splits, execute from scratch, and separate synthetic results
+from recovery of known objects. Do not claim metrics without execution.
 ```

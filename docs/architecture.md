@@ -1,100 +1,100 @@
-# Arquitectura propuesta
+# Proposed architecture
 
-## Decisión principal
+## Main decision
 
-Monorepo con backend modular y workers separados por proceso. Astronomy, detection y
-AI son paquetes Python, no microservicios HTTP independientes. Esto evita contratos
-de red y despliegues innecesarios durante el MVP. Solo API y workers acceden a SQL/S3.
-El frontend nunca recibe claves del proveedor ni acceso directo a Redis.
+A monorepo with a modular backend and workers in separate processes. Astronomy,
+detection, and AI are Python packages, not independent HTTP microservices. This
+avoids unnecessary network contracts and deployments during the MVP. Only the API
+and workers access SQL/S3. The frontend never receives provider keys or direct Redis access.
 
 ```mermaid
 flowchart LR
-  User[Investigador / revisor] --> Web[Next.js App Router]
+  User[Researcher / reviewer] --> Web[Next.js App Router]
   Web --> API[FastAPI / v1]
   API --> DB[(PostgreSQL)]
   API --> Queue[(Redis / Celery)]
   Queue --> Workers[Workers]
-  Workers --> Astro[Astronomy: IRSA y FITS]
-  Astro --> IRSA[IRSA SIA2 / productos versionados]
-  Workers --> Detect[Detection: baseline y asociación]
-  Workers --> Validate[Validación de catálogos / efemérides]
-  Workers --> Store[(S3: originales y derivados)]
+  Workers --> Astro[Astronomy: IRSA and FITS]
+  Astro --> IRSA[IRSA SIA2 / versioned products]
+  Workers --> Detect[Detection: baseline and association]
+  Workers --> Validate[Catalog / ephemeris validation]
+  Workers --> Store[(S3: originals and derivatives)]
   Workers --> DB
-  API --> AI[AI: evidencia y presupuesto]
-  AI --> Gemini[Gemini opcional]
+  API --> AI[AI: evidence and budget]
+  AI --> Gemini[Optional Gemini]
 ```
 
-El diagrama describe el destino, no el despliegue implementado. Hoy solo están
-operativos FastAPI y la construcción determinista de URLs de consulta.
+This diagram describes the target. Only FastAPI and deterministic query URL
+construction are currently operational.
 
-## Responsabilidades y dependencias
+## Responsibilities and dependencies
 
-| Límite | Entrada → salida | Regla |
+| Boundary | Input → output | Rule |
 | --- | --- | --- |
-| web | contratos API → visualización | Next.js, React, TS, Tailwind, shadcn/ui; Aladin/Plotly solo cliente |
-| api | JSON validado → consultas/jobs | autenticación y autorización antes de escrituras públicas |
-| astronomy | productos versionados → arrays/WCS/máscaras | no depende de API, frontend ni Gemini |
-| detection | mediciones/errores/épocas → asociaciones | no importa código LLM |
-| ai | expediente cerrado → explicación citada | no altera medidas ni estados científicos |
-| workers | identificadores de job → artefactos persistidos | mensajes JSON pequeños; nunca enviar FITS por Redis |
-| shared | OpenAPI → cliente generado | no duplicar manualmente esquemas Python y TypeScript |
+| web | API contracts → visualization | Next.js, React, TS, Tailwind, shadcn/ui; client-only Aladin/Plotly |
+| api | Validated JSON → queries/jobs | Authentication and authorization before public writes |
+| astronomy | Versioned products → arrays/WCS/masks | Independent of API, frontend, and Gemini |
+| detection | Measurements/errors/epochs → associations | Does not import LLM code |
+| ai | Completed dossier → cited explanation | Does not alter measurements or scientific states |
+| workers | Job IDs → persisted artifacts | Small JSON messages; never send FITS through Redis |
+| shared | OpenAPI → generated client | Do not manually duplicate Python and TypeScript schemas |
 
-## Flujo científico y trazabilidad
+## Scientific workflow and traceability
 
-1. Validar región ICRS, radio y rango temporal explícito en MJD.
-2. Consultar metadatos de productos por colección; conservar respuesta y fecha.
-3. Descargar desde hosts IRSA permitidos, con límites de tamaño y tiempo;
-   validar redirecciones, checksum SHA-256 y producto. Evitar URLs arbitrarias.
-4. Registrar HDUs, release, calibración, unidades, época/escala temporal, WCS,
-   respuesta espectral local, incertidumbres y máscaras. Rechazar entradas ambiguas.
-5. Aplicar compuerta de compatibilidad espectral/PSF/calibración y solapamiento.
-6. Extraer fuentes, registrar incertidumbre y alinear propagando ruido correlacionado.
-7. Asociar con épocas reales y geometría esférica. Ajustar trayectoria y guardar
-   residuos, hipótesis y alternativas. Dos épocas son indicio, no confirmación.
-8. Consultar catálogos/efemérides con época y posición del observador correctas.
-9. Persistir expediente versionado; revisión humana; resumen opcional con evidencia.
+1. Validate the ICRS region, radius, and explicit MJD interval.
+2. Query product metadata by collection; preserve the response and date.
+3. Download from allowed IRSA hosts with size/time limits; validate redirects,
+   SHA-256 checksum, and product. Reject arbitrary URLs.
+4. Record HDUs, release, calibration, units, epoch/time scale, WCS, local spectral
+   response, uncertainties, and masks. Reject ambiguous inputs.
+5. Apply spectral/PSF/calibration compatibility and overlap checks.
+6. Extract sources, record uncertainties, and align while propagating correlated noise.
+7. Associate using actual epochs and spherical geometry. Fit trajectories and retain
+   residuals, assumptions, and alternatives. Two epochs are an indication, not confirmation.
+8. Query catalogs/ephemerides with the correct epoch and observer position.
+9. Persist a versioned dossier, support human review, and optionally summarize evidence.
 
-## Jobs y almacenamiento
+## Jobs and storage
 
-PostgreSQL es la autoridad de estados: queued → running → succeeded/failed/cancelled.
-Una reejecución crea un nuevo job con parámetros versionados. Clave idempotente:
-hash de entradas/checksums + configuración + commit + versión de calibración.
-Planificar outbox transaccional para evitar jobs persistidos sin encolado.
-Reintentar solo fallos transitorios, con backoff y límite; DLQ/estado failed visible.
-Celery puede entregar más de una vez: publicar derivados por clave inmutable y
-confirmar resultados de forma idempotente. Timeout de visibilidad superior al límite
-de tarea; recuperación explícita de jobs abandonados.
+PostgreSQL owns state: queued → running → succeeded/failed/cancelled. Reruns create
+new jobs with versioned parameters. The idempotency key hashes input checksums,
+configuration, commit, and calibration version. Plan a transactional outbox to avoid
+persisted jobs that are never enqueued. Retry only transient failures with bounded
+backoff; expose a dead-letter queue or failed state. Celery may deliver more than once:
+publish derivatives under immutable keys and commit results idempotently. Set visibility
+timeout above the task time limit and explicitly recover abandoned jobs.
 
-S3 conserva originales inmutables, máscaras, miniaturas, reportes y manifiestos.
-PostgreSQL almacena referencias; Redis solo caché/cola. Separar caché de broker en
-producción. URLs firmadas de corta duración para artefactos privados. Versionar
-esquema con Alembic antes de la primera evolución persistente.
+S3 stores immutable originals, masks, thumbnails, reports, and manifests. PostgreSQL
+stores references; Redis provides cache/queue. Separate cache and broker in production.
+Use short-lived signed URLs for private artifacts. Adopt Alembic migrations before
+the first persistent schema evolution.
 
-## Copiloto y presupuesto propuesto
+## Planned copilot and budget
 
-Deshabilitado por defecto. Elegir modelo Flash y precios solo tras verificar la
-documentación vigente del proveedor. USD 4 es un techo configurable, no una tarifa.
-Reservar coste máximo en transacción serializada antes de cada llamada; rechazar si
-consumido + reservas + coste máximo supera el techo. Registrar tokens y conciliar
-respuesta; llamadas con resultado desconocido conservan reserva. Reintentos consumen
-reservas propias. Cuotas por usuario, límites de concurrencia y rate limiting.
-Caché por hash de evidencia/modelo/prompt. Clave solo backend; nunca NEXT_PUBLIC_.
-Tratar metadatos, notas y respuestas externas como datos no confiables. Respuestas
-con referencias a IDs reales; rechazar afirmaciones sin evidencia verificable.
+Disabled by default. Select a Flash model and prices only after checking current
+provider documentation. USD 4 is a configurable ceiling, not a price quote. Reserve
+maximum cost in a serialized transaction before every call; reject when consumed cost
+plus reservations plus maximum call cost exceeds the ceiling. Record tokens and reconcile
+responses; calls with unknown outcomes retain reservations. Retries need their own
+reservations. Apply per-user quotas, concurrency limits, and rate limiting. Cache by
+evidence/model/prompt hash. Keep keys in the backend, never NEXT_PUBLIC_. Treat metadata,
+notes, and external responses as untrusted data. Reference real IDs in responses and
+reject claims without verifiable evidence.
 
-## Operación y seguridad
+## Operations and security
 
-Producción pendiente: TLS, OIDC, RBAC, CORS por origen exacto, protección CSRF si se
-usan cookies, cuotas de descarga y CPU, almacenamiento privado y gestión de secretos.
-Revisores no cambian medidas; moderadores administran revisión sin confirmar descubrimientos.
-Logs JSON con request_id/job_id, sin claves ni prompts privados. Medir latencia de
-cola, fallos de archivo, tiempo por etapa y gasto reservado/consumido. Backups SQL y
-prueba de restauración más retención/lifecycle de objetos antes de uso público.
+Production work remains: TLS, OIDC, RBAC, exact-origin CORS, CSRF protection when using
+cookies, download/CPU quotas, private storage, and secret management. Reviewers cannot
+change measurements; moderators manage review without confirming discoveries. Use JSON
+logs with request_id/job_id, excluding keys and private prompts. Measure queue latency,
+archive failures, time per stage, and reserved/consumed budget. Establish SQL backups
+and restoration tests plus object retention/lifecycle rules before public use.
 
-## Dependencias por fase
+## Dependencies by phase
 
-`uv.lock` fija el entorno Python. Extras `astronomy` y `workers` son opcionales y no
-prueban integración operativa. Astroquery, OpenCV, scikit-image, sklearn y PyTorch se
-añadirán solo si un experimento justifica su uso. TanStack Query para estado remoto;
-Zustand solo si la interacción local lo requiere. Frontend: Node 22 LTS propuesto,
-lockfile y versiones verificadas al implementarlo. No añadir dependencias decorativas.
+`uv.lock` pins the Python environment. The `astronomy` and `workers` extras are optional
+and do not demonstrate operational integration. Add Astroquery, OpenCV, scikit-image,
+sklearn, and PyTorch only when justified by an experiment. Use TanStack Query for remote
+state and Zustand only when local interaction requires it. Proposed frontend: Node 22
+LTS, with lockfile and versions verified at implementation time. Do not add decorative
+dependencies. Use English for product text and technical documentation.

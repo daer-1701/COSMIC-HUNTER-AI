@@ -1,30 +1,31 @@
-# Protocolo científico previsto
+# Planned scientific protocol
 
-No hay detector ni métricas obtenidas en esta fase.
+There is no detector or measured evaluation result at this stage.
 
-Baseline: extracción de fuentes con fondo/ruido/máscaras, transformación WCS,
-asociación con límites de velocidad explícitos y ajuste de movimiento en plano
-tangente/esfera. Conservar covarianzas, residuos, épocas y calibración. Comparar
-fotometría solo con respuesta espectral compatible; reproyectar no iguala PSFs.
-Exigir una tercera época o evidencia adicional para robustecer asociaciones; tratar
-paralaje, observador, confusión de fuentes y variabilidad como explicaciones alternativas.
+Baseline: source extraction with background/noise/masks, WCS transformation,
+association with explicit velocity bounds, and motion fitting on a tangent plane or
+sphere. Preserve covariances, residuals, epochs, and calibration. Compare photometry
+only with compatible spectral response; reprojection does not match PSFs. Require a
+third epoch or additional evidence to strengthen associations; consider parallax,
+observer geometry, source confusion, and variability as alternative explanations.
 
-Validación: separar regiones, épocas y objetos de entrenamiento, ajuste y evaluación;
-evitar versiones reprocesadas de una misma exposición entre particiones. Fijar
-semillas, checksum de datasets, commit, entorno, umbrales y configuración del experimento.
+Validation: separate regions, epochs, and objects across training, tuning, and evaluation;
+avoid reprocessed versions of the same exposure across splits. Fix seeds, dataset
+checksums, commit, environment, thresholds, and experiment configuration.
 
-Conjunto A: objetos conocidos con efemérides y posición del observador. Conjunto B:
-inyecciones etiquetadas **synthetic** sobre imágenes reales, con PSF/ruido apropiados.
-Conjunto C: controles estáticos y artefactos. Nunca presentar inyecciones como hallazgos.
+Set A: known objects with ephemerides and observer position. Set B: injections labeled
+**synthetic** into real images, with appropriate PSF/noise. Set C: static controls and
+artifacts. Never present injections as discoveries.
 
-Métricas previstas: precision=TP/(TP+FP), recall=TP/(TP+FN), falsos positivos por
-área/época, error astrométrico angular, error/tasa de asociación, residuos de ajuste,
-rendimiento por SNR y magnitud calibrada, tiempo y memoria por etapa. Definir
-tolerancias y correspondencias uno a uno antes de evaluar; incluir intervalos de
-confianza, cobertura y casos excluidos. Denominadores cero se reportan como indefinidos.
+Planned metrics: precision=TP/(TP+FP), recall=TP/(TP+FN), false positives per area/epoch,
+angular astrometric error, association error/rate, fit residuals, performance by SNR
+and calibrated magnitude, and processing time/memory by stage. Define tolerances and
+one-to-one matching before evaluation; include confidence intervals, coverage, and
+excluded cases. Report zero denominators as undefined.
 
-Puntuación heurística explicable no es probabilidad calibrada. Comparar IA contra
-baseline en test separado antes de afirmar mejoras. Catálogo sin coincidencia,
-servicio caído y consulta fallida son resultados distintos; ninguno confirma un planeta.
-Cada expediente incluye fuentes originales, versiones, parámetros, incertidumbres,
-resultados externos, limitaciones y estado humano. Gemini solo explica ese expediente.
+An explainable heuristic score is not a calibrated probability. Compare AI against the
+baseline on a separate test set before claiming improvements. A catalog non-match,
+service outage, and failed query are distinct outcomes; none confirms a planet. Each
+dossier includes original sources, versions, parameters, uncertainties, external results,
+limitations, and human review status. Gemini only explains that dossier. Write reports
+and plot labels in English while preserving original evidence metadata.

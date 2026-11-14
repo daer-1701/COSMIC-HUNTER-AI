@@ -1,23 +1,23 @@
-# Verificación de la base
+# Foundation verification
 
-Fecha: 2026-11-14. Windows / Python 3.13.0 / uv 0.12.3.
+Initial verification date: 2026-11-14. Windows / Python 3.13.0 / uv 0.12.3.
+This records the initial setup checks, not the current state of external services.
 
-- `uv lock` y `uv sync --frozen`: completados; lockfile incluido.
-- `uv run pytest -q`: 14 pruebas aprobadas de validación de consultas y contratos.
-- `uv run ruff check .` y `uv run ruff format --check .`: aprobados.
-- Exportación OpenAPI: completada. El contrato no contiene rutas futuras ficticias.
-- `docker compose --env-file .env.example config --quiet`: aprobado.
-- `.env`, FITS locales y `.venv` quedan excluidos por Git.
+- `uv lock` and `uv sync --frozen`: completed; lockfile included.
+- `uv run pytest -q`: 14 passing query-validation and contract tests.
+- `uv run ruff check .` and `uv run ruff format --check .`: passed.
+- OpenAPI export: completed. The contract does not contain fictional future routes.
+- `docker compose --env-file .env.example config --quiet`: passed.
+- `.env`, local FITS files, and `.venv` are excluded from Git.
 
-Aviso del entorno de pruebas: Starlette advierte que su uso de httpx está deprecado
-en favor de httpx2. No afecta estas pruebas; revisar compatibilidad al actualizar el
-cliente de pruebas.
+Test environment warning: Starlette deprecates its use of httpx in favor of httpx2.
+This does not affect these tests; review compatibility when updating the test client.
 
-No verificado: build/arranque Docker ni ejecución SQL, porque el daemon de Docker
-Desktop no estaba disponible. El esquema requiere ejecutar el bootstrap en PostgreSQL
-y validar restricciones antes de integrar persistencia. La CI incluye build del API,
-pero no ha corrido en GitHub porque todavía no hay remoto.
+Not verified during initial setup: Docker build/startup or SQL execution, because the
+Docker Desktop daemon was unavailable. Run the bootstrap in PostgreSQL and validate
+constraints before integrating persistence. CI includes the API image build; its
+remote run was not verified during initial setup, when no remote was configured.
 
-No se probaron IRSA en vivo, FITS, detección, Gemini, frontend ni colas: no están
-implementados. Las pruebas actuales validan la base arquitectónica, no exactitud
-científica ni desempeño de la plataforma final.
+Live IRSA, FITS processing, detection, Gemini, frontend, and queues were not tested:
+they are not implemented. Current tests validate the architecture foundation, not
+scientific accuracy or final platform performance.

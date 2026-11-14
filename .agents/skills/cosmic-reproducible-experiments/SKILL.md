@@ -1,44 +1,45 @@
 ---
 name: cosmic-reproducible-experiments
-description: Diseñar y ejecutar notebooks, benchmarks o evaluaciones de detección y asociación temporal de Cosmic Hunter AI con trazabilidad, separación de datos y métricas científicas reproducibles.
+description: Design and run Cosmic Hunter AI notebooks, benchmarks, or detection and temporal-association evaluations with traceability, data separation, and reproducible scientific metrics.
 ---
 
-# Experimentos reproducibles
+# Reproducible experiments
 
-Lee docs/science.md y el código evaluado. Acordar mediante la tarea la hipótesis,
-baseline, población, criterio de correspondencia y recursos disponibles. No inventar
-resultados cuando falten datos. Separar objetivo del experimento y funcionalidad del producto.
+Read docs/science.md and the evaluated code. Establish the hypothesis, baseline,
+population, matching criterion, and available resources from the task. Do not invent
+results when data is missing. Distinguish experiment goals from product functionality.
+Write notebook explanations, plot labels, and reports in English.
 
-## Preparar
+## Prepare
 
-Registrar manifiesto de productos/checksums, release/calibración, región, épocas,
-criterios de calidad, semilla, configuración, commit y entorno bloqueado. En notebooks,
-usar nbformat/nbclient si están disponibles; dependencias nuevas justificadas en el
-entorno del proyecto. Extraer lógica reutilizable a services/, sin estado oculto.
+Record the product/checksum manifest, release/calibration, region, epochs, quality
+criteria, seed, configuration, commit, and locked environment. Use nbformat/nbclient
+for notebooks when available; justify new dependencies in the project environment.
+Move reusable logic into services/ and avoid hidden state.
 
-Separar entrenamiento, ajuste de umbral y test por objetos/regiones/épocas según la
-pregunta científica. Evitar exposiciones reprocesadas o recortes correlacionados entre
-particiones. Umbrales y tolerancias se fijan sin consultar el resultado del test.
+Separate training, threshold tuning, and test by objects/regions/epochs according to
+the scientific question. Avoid reprocessed exposures or correlated cutouts across
+splits. Fix thresholds and tolerances without inspecting test results.
 
-## Evaluar
+## Evaluate
 
-Usar conocidos con efemérides y controles estáticos. Las inyecciones deben conservar
-etiqueta synthetic y documentar PSF, flujo, ruido, trayectoria y máscara. Informar la
-brecha entre recuperación sintética y sensibilidad comprobada con objetos reales.
+Use known objects with ephemerides and static controls. Keep injections labeled
+synthetic and document PSF, flux, noise, trajectory, and masks. Report the gap between
+synthetic recovery and sensitivity demonstrated with real objects.
 
-Correspondencias uno a uno con tolerancia astrométrica declarada. Medir precision,
-recall, FP por área/época, error angular, fallos de asociación y tiempo/memoria por
-etapa; estratificar por SNR y magnitud solo si la calibración lo permite. Mostrar
-denominadores, exclusiones e intervalos de confianza. Denominador cero: indefinido,
-no cero inventado. Una puntuación heurística no es una probabilidad calibrada.
+Use one-to-one matching with declared astrometric tolerance. Measure precision, recall,
+false positives per area/epoch, angular error, association failures, and time/memory by
+stage; stratify by SNR and magnitude only when calibration supports it. Show denominators,
+exclusions, and confidence intervals. A zero denominator is undefined, not an invented
+zero. A heuristic score is not a calibrated probability.
 
-Comparar IA con baseline sobre el mismo conjunto retenido; reportar ganancias y
-regresiones, no solo ejemplos favorables. No promover una mejora sin evidencia.
+Compare AI with the baseline on the same held-out set. Report gains and regressions,
+not just favorable examples. Do not claim improvement without evidence.
 
-## Ejecutar y entregar
+## Execute and hand off
 
-Ejecutar notebook desde kernel limpio de arriba abajo; no usar salidas viejas como
-validación. Comprobar que tablas, gráficos y conclusiones salen de la misma ejecución.
-Entregar comando de reproducción, manifiesto, configuración, resultados y límites.
-Si no pudo ejecutarse, declarar exactamente datos/dependencias/acceso faltantes.
-Mantener outputs acotados y no versionar archivos grandes, secretos ni datos personales.
+Run notebooks top-to-bottom in a clean kernel; old outputs are not validation. Verify
+that tables, plots, and conclusions come from the same run. Provide the reproduction
+command, manifest, configuration, results, and limitations. If execution was not possible,
+specify the missing data/dependencies/access. Keep outputs bounded and do not version
+large files, secrets, or personal data.

@@ -1,11 +1,11 @@
 ---
-description: Contratos y persistencia del backend científico.
+description: Scientific backend contracts and persistence.
 globs: services/api/**,services/workers/**,services/ai/**,infrastructure/db/**,packages/shared/**
 alwaysApply: false
 ---
 
-Usa `cosmic-api-contracts` cuando cambien rutas, schemas, jobs o persistencia.
-No hagas procesamiento FITS intensivo dentro de una ruta HTTP.
-El contrato nace en Pydantic/OpenAPI y se regenera con scripts/export_openapi.py.
-Separar fallos externos de resultados científicos negativos. Gemini requiere evidencia
-y control de gasto en backend; nunca convertir su respuesta en medición.
+Use `cosmic-api-contracts` when routes, schemas, jobs, or persistence change.
+Do not run intensive FITS processing inside an HTTP handler.
+Pydantic/OpenAPI defines the contract; regenerate it with scripts/export_openapi.py.
+Distinguish external failures from negative scientific results. Gemini requires evidence
+and backend spending controls; never turn its output into a measurement.

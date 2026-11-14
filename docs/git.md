@@ -1,24 +1,29 @@
-# Preparación y publicación
+# Git preparation and publication
 
-El repositorio se prepara en main sin commit ni remoto automático. Publicar requiere
-la URL del repositorio elegido y acceso del usuario. No se ha subido contenido.
+Inspect the current branch, commits, and remotes before publishing. The initial
+architecture setup did not create a commit or remote automatically; later user
+changes may already have configured them. Publication requires the chosen repository
+and authorized access.
 
 ```powershell
 git status --short
-git add .
+git remote -v
+git add <reviewed-paths>
 git diff --cached --stat
 git diff --cached
 git commit -m "chore: bootstrap Cosmic Hunter AI architecture"
-git remote add origin https://github.com/ORGANIZACION/cosmic-hunter-ai.git
+# Only if origin has not been configured:
+git remote add origin https://github.com/ORGANIZATION/cosmic-hunter-ai.git
 git push -u origin main
 ```
 
-Sustituir ORGANIZACION y confirmar nombre de repo antes de ejecutar. Los ejemplos
-de credenciales en .env.example son solo desarrollo local. Revisar staged diff antes
-de commit; .gitignore no elimina secretos previamente versionados. Rotar cualquier
-clave expuesta, aunque luego se borre del historial. No versionar FITS/modelos; guardar
-manifiestos con referencias/checksums y condiciones de acceso.
+Replace ORGANIZATION and confirm the repository name before running these examples.
+Replace `<reviewed-paths>` with the files intended for the commit. Example credentials
+in .env.example are for local development only. Review the staged diff before committing;
+.gitignore does not remove previously tracked secrets. Rotate exposed keys even if
+later removed from history. Keep FITS files/models outside Git; store manifests with
+references, checksums, and access conditions.
 
-CI verifica estilo, pruebas, deriva OpenAPI, Compose y construcción API. Protección
-de main y revisión por PR se configuran en GitHub al crear el remoto. El esquema SQL
-requiere validación con PostgreSQL real; no basta con generar el archivo.
+CI checks style, tests, OpenAPI drift, Compose configuration, and the API image build.
+Configure main branch protection and pull request reviews in GitHub. Verify the SQL
+schema against real PostgreSQL; generating the file is not sufficient.

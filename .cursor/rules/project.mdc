@@ -1,9 +1,10 @@
 ---
-description: Contexto general y coordinación de Cosmic Hunter AI.
+description: Cosmic Hunter AI project context, English language policy, and coordination.
 alwaysApply: true
 ---
 
-Lee `AGENTS.md` en la raíz como guía central del proyecto antes de editar.
-Consulta `docs/agent-tooling.md` para elegir skills de `.agents/skills/`.
-Comprueba estado y diff de Git: Codex puede estar trabajando en la misma carpeta.
-No sobrescribas cambios ajenos. Entrega rutas, comprobaciones y pendientes al cerrar.
+Read the root `AGENTS.md` as the central project guide before editing.
+Use English for documentation, code comments, API/UI text, reports, and instructions.
+Consult `docs/agent-tooling.md` to select skills from `.agents/skills/`.
+Inspect Git status and diff: Codex may be working in the same directory.
+Do not overwrite others' changes. Hand off paths, checks, and remaining work.

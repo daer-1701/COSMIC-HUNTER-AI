@@ -1,11 +1,12 @@
-# Frontend previsto
+# Planned frontend
 
-Next.js App Router + TypeScript + React + Tailwind + shadcn/ui. Esta carpeta no
-contiene todavía una aplicación ejecutable ni dependencias Node instaladas.
-Crear el frontend después de validar el corte vertical de datos reales; usar
-OpenAPI para generar el cliente y TanStack Query para consultas. Aladin Lite y Plotly
-deben cargarse en componentes cliente. No poner Gemini ni secretos en NEXT_PUBLIC_.
+Next.js App Router + TypeScript + React + Tailwind + shadcn/ui. This directory does
+not yet contain a runnable application or installed Node dependencies. Build the
+frontend after validating the vertical slice with real data. Generate the client
+from OpenAPI and use TanStack Query for queries. Load Aladin Lite and Plotly in client
+components. Never expose Gemini or secrets through NEXT_PUBLIC_.
 
-Vistas: presentación, explorador, comparación temporal, detecciones, expediente,
-trayectoria, copiloto y revisión. Cada vista debe mostrar procedencia y estado de
-datos; los estados vacíos no deben rellenarse con resultados científicos inventados.
+Views: landing page, explorer, temporal comparison, detections, evidence dossier,
+trajectory, copilot, and review. Each view must display data provenance and status;
+empty states must not be filled with invented scientific results. Use English for
+all interface text, validation messages, accessibility labels, and exported reports.

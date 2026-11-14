@@ -1,35 +1,36 @@
-# Contratos HTTP
+# HTTP contracts
 
-Fuente ejecutable: modelos Pydantic y OpenAPI exportado a
-`packages/shared/openapi.json`. `/docs` y `/openapi.json` disponibles al arrancar.
+Executable source: Pydantic models and OpenAPI exported to
+`packages/shared/openapi.json`. `/docs` and `/openapi.json` are available at startup.
 
-## Implementado
+## Implemented
 
-| Método / ruta | Resultado |
+| Method / route | Result |
 | --- | --- |
-| GET /health/live | 200: proceso vivo; no indica preparación de SQL/IRSA |
-| POST /v1/observations/query-plan | 200: URL IRSA, executed=false; 422: entrada inválida |
+| GET /health/live | 200: process alive; does not assert SQL/IRSA readiness |
+| POST /v1/observations/query-plan | 200: IRSA URL, executed=false; 422: invalid input |
 
-Coordenadas ICRS en grados: 0 ≤ RA < 360, −90 ≤ Dec ≤ 90; radio (0, 0.5].
-Colección DR1 o QR3. Tiempo opcional: ambos límites MJD, escala que exige SIA2;
-confirmar semántica del archivo al importar. No se aceptan campos extra o no finitos.
-No se ejecutan consultas externas ni se guarda evidencia con este endpoint.
+ICRS coordinates in degrees: 0 <= RA < 360, -90 <= Dec <= 90; radius (0, 0.5].
+DR1 or QR3 collection. Optional time requires both MJD bounds using the scale required
+by SIA2; confirm file semantics during import. Extra fields and nonfinite values are
+rejected. This endpoint does not run external queries or persist evidence.
 
-## Diseñado, pendiente de implementar
+## Designed, not yet implemented
 
-| Ruta prevista | Contrato previsto |
+| Planned route | Planned contract |
 | --- | --- |
-| POST /v1/observation-searches | 202 + job_id y Location; búsqueda acotada asíncrona |
-| GET /v1/observations | cursor opaco + limit ≤ 100; filtros región/época/colección |
-| POST /v1/jobs | JWT + Idempotency-Key; entradas por IDs persistidos; 202 |
-| GET /v1/jobs/{id} | estado persistido, progreso, errores por etapa |
-| GET /v1/candidates | filtros y paginación por cursor |
-| GET /v1/candidates/{id} | detecciones, errores, movimiento, procedencia, revisión |
-| GET /v1/candidates/{id}/evidence | manifiesto versionado + enlaces temporales |
-| POST /v1/candidates/{id}/reviews | JWT reviewer; 201 o 409 si ya existe |
-| POST /v1/candidates/{id}/summary | JWT + límite presupuesto; evidencia obligatoria |
+| POST /v1/observation-searches | 202 + job_id and Location; bounded asynchronous search |
+| GET /v1/observations | Opaque cursor + limit <= 100; region/epoch/collection filters |
+| POST /v1/jobs | JWT + Idempotency-Key; inputs reference persisted IDs; 202 |
+| GET /v1/jobs/{id} | Persisted state, progress, and errors by stage |
+| GET /v1/candidates | Filters and cursor pagination |
+| GET /v1/candidates/{id} | Detections, errors, motion, provenance, and review |
+| GET /v1/candidates/{id}/evidence | Versioned manifest and temporary links |
+| POST /v1/candidates/{id}/reviews | Reviewer JWT; 201 or 409 if already present |
+| POST /v1/candidates/{id}/summary | JWT + budget limit; evidence required |
 
-Antes de implementar: especificar cuerpos y errores en OpenAPI, generar cliente TS.
-Errores previstos con request_id: 401/403 autorización, 404 ausente, 409 conflicto,
-422 validación, 429 cuota, 502/503 proveedor; Retry-After cuando aplique.
-Reutilizar Idempotency-Key con cuerpo distinto debe devolver 409.
+Before implementation, specify bodies and errors in OpenAPI and generate the TS client.
+Planned errors with request_id: 401/403 authorization, 404 missing resource, 409 conflict,
+422 validation, 429 quota, 502/503 provider errors; Retry-After where applicable.
+Reusing Idempotency-Key with a different body must return 409. Document API messages
+and descriptions in English.

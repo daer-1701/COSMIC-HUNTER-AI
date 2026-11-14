@@ -1,48 +1,49 @@
 ---
 name: cosmic-api-contracts
-description: Crear o cambiar contratos FastAPI/Pydantic, jobs Celery, persistencia PostgreSQL o controles Gemini en Cosmic Hunter AI con límites claros, trazabilidad y clientes OpenAPI coherentes.
+description: Create or update Cosmic Hunter AI FastAPI/Pydantic contracts, Celery jobs, PostgreSQL persistence, or Gemini controls with explicit boundaries, traceability, and consistent OpenAPI clients.
 ---
 
-# Contratos científicos del backend
+# Scientific backend contracts
 
-Lee docs/api.md, docs/architecture.md y el código afectado. Para persistencia, también
-docs/data-model.md y el SQL actual. No exponer rutas que aparenten procesar datos
-cuando solo hay un placeholder. Un plan de consulta devuelve executed=false.
+Read docs/api.md, docs/architecture.md, and the affected code. For persistence, also
+read docs/data-model.md and the current SQL. Do not expose routes that suggest real
+processing when only placeholders exist. A query plan returns executed=false.
+Write schemas, descriptions, errors, and documentation in English.
 
-## HTTP y schemas
+## HTTP and schemas
 
-Definir unidades, marco de coordenadas, escala temporal, límites y política de campos
-extra en Pydantic. Rechazar no finitos e intervalos incompletos/invertidos. Paginar
-consultas y acotar radio/tiempo/volumen según capacidad medida. Documentar respuestas y
-errores implementados. Evitar errores HTTP 200 con fallos ocultos en el cuerpo.
-No filtrar claves, trazas internas ni respuestas privadas de proveedores al navegador.
+Define units, coordinate frame, time scale, bounds, and extra-field policy in Pydantic.
+Reject nonfinite values and incomplete/reversed intervals. Paginate queries and bound
+radius/time/volume according to measured capacity. Document implemented responses and
+errors. Avoid HTTP 200 responses with failures hidden in the body. Do not expose keys,
+internal traces, or private provider responses to the browser.
 
-Procesamiento pesado pasa a jobs, con entradas por IDs persistidos. Diferenciar
-202 aceptado de resultado final. Idempotency-Key debe enlazar cuerpo/configuración:
-misma clave con petición distinta es conflicto. Autorizar lecturas/escrituras por
-recurso antes de persistir o entregar artefactos privados.
+Move heavy processing to jobs with inputs referencing persisted IDs. Distinguish 202
+acceptance from final results. Bind Idempotency-Key to body/configuration: the same
+key with a different request is a conflict. Authorize reads/writes per resource before
+persisting or delivering private artifacts.
 
-## Estado y persistencia
+## State and persistence
 
-SQL mantiene estados; Redis no es la única evidencia de progreso. Resolver atomicidad
-entre creación/enqueue con outbox u otro mecanismo explícito. Diseñar entregas repetidas,
-fallos a mitad de escritura, retries acotados y cancelación antes de habilitar workers.
-Crear resultados inmutables por ejecución/configuración. No serializar FITS por broker.
-Evolucionar esquema con migraciones; el bootstrap actual solo inicializa una base nueva.
-Verificar constraints y transacciones en PostgreSQL real antes de declararlos operativos.
+SQL owns state; Redis is not the sole evidence of progress. Resolve job creation/enqueue
+atomicity with an outbox or another explicit mechanism. Design for repeated delivery,
+partial writes, bounded retries, and cancellation before enabling workers. Produce
+immutable results per run/configuration. Do not serialize FITS through the broker.
+Evolve schemas through migrations; the current bootstrap only initializes a new database.
+Verify constraints and transactions against real PostgreSQL before claiming they work.
 
-## Gemini, cuando la tarea lo implemente
+## Gemini, when implemented by the task
 
-Solo backend, con evidencia persistida y modelo/precios verificados en documentación
-oficial de Google. Reservar coste máximo atómicamente antes de llamar; incluir tokens,
-concurrencia, reintentos y llamadas de resultado desconocido. Sin reserva no hay llamada.
-Pruebas offline para caché, cuotas y presupuesto; pruebas de pago solo cuando estén
-autorizadas. Respuestas con referencias verificadas; sin modificar medidas ni estados
-de descubrimiento a partir del texto del modelo.
+Backend only, with persisted evidence and model/prices checked against official Google
+documentation. Atomically reserve maximum cost before calling; account for tokens,
+concurrency, retries, and calls with unknown outcomes. No reservation means no call.
+Use offline tests for cache, quotas, and budget; paid tests require authorization.
+Verify evidence references in responses. Do not change measurements or discovery
+states based on model text.
 
-## Verificación
+## Verification
 
-Agregar pruebas de aceptación/rechazo y fallos de proveedor apropiadas al cambio.
-Regenerar con `uv run python scripts/export_openapi.py`, revisar diff y ejecutar
-Ruff/pytest según AGENTS.md. No escribir manualmente el contrato generado. Al entregar,
-indicar rutas realmente operativas y distinguir tests unitarios de integración real.
+Add acceptance/rejection and provider-failure tests appropriate to the change.
+Regenerate with `uv run python scripts/export_openapi.py`, inspect the diff, and run
+Ruff/pytest as specified in AGENTS.md. Do not manually edit the generated contract.
+Report operational routes and distinguish unit tests from real integration checks.
