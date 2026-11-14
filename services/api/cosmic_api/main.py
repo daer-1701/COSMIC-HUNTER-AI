@@ -1,29 +1,57 @@
 import logging
+import math
+import time
 import uuid
+from collections.abc import Callable
 from datetime import datetime, timedelta, timezone
-from typing import Annotated
+from typing import Annotated, Any
 
 import httpx
+from cosmic_ai.budget import BudgetExceeded
+from cosmic_ai.summary import (
+    Prices,
+    ProviderTimeout,
+    SummaryError,
+    build_evidence,
+    generate_summary,
+    render_prompt,
+)
 from cosmic_astronomy.irsa import build_sia_url
-from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from cosmic_api.catalog import EXAMPLES, build_example, find_frame_preview, preview_index
+from cosmic_api import summaries
+from cosmic_api.catalog import (
+    EXAMPLES,
+    build_example,
+    distinct_detectors,
+    find_frame_preview,
+    preview_index,
+)
 from cosmic_api.live_search import ArchiveError, build_observations, fetch_votable, parse_votable
 from cosmic_api.schemas import (
     ErrorResponse,
+    EvidenceLine,
     ExampleResponse,
     ObservationQuery,
     QueryPlan,
     SearchResponse,
     SkySearchQuery,
+    SummaryResponse,
+    SummaryUsage,
 )
 from cosmic_api.settings import Settings, get_settings
 
 logger = logging.getLogger("cosmic_api")
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s"))
+    for name in ("cosmic_api", "cosmic_ai"):
+        logging.getLogger(name).addHandler(handler)
+        logging.getLogger(name).setLevel(logging.INFO)
 
 SettingsDep = Annotated[Settings, Depends(get_settings)]
 DEMO_TIMEZONE = timezone(timedelta(hours=-4))
@@ -34,7 +62,13 @@ def get_archive_transport() -> httpx.BaseTransport | None:
     return None
 
 
+def get_gemini_client_factory() -> Callable[[Settings], Any]:
+    """The client is built only after the configuration gate; tests override this."""
+    return summaries.get_gemini_client
+
+
 TransportDep = Annotated[httpx.BaseTransport | None, Depends(get_archive_transport)]
+GeminiFactoryDep = Annotated[Callable[[Settings], Any], Depends(get_gemini_client_factory)]
 
 
 def error_responses(*codes: int) -> dict[int | str, dict]:
@@ -58,8 +92,17 @@ app.add_middleware(
 @app.middleware("http")
 async def assign_request_id(request: Request, call_next):
     request.state.request_id = uuid.uuid4().hex
+    started = time.perf_counter()
     response = await call_next(request)
     response.headers["X-Request-ID"] = request.state.request_id
+    logger.info(
+        "%s %s status=%d source=%s ms=%.0f",
+        request.method,
+        request.url.path,
+        response.status_code,
+        getattr(request.state, "source", "-"),
+        (time.perf_counter() - started) * 1000,
+    )
     return response
 
 
@@ -114,9 +157,10 @@ def observation_query_plan(query: ObservationQuery) -> QueryPlan:
     tags=["observations"],
 )
 def sky_search(
-    query: SkySearchQuery, settings: SettingsDep, transport: TransportDep
+    query: SkySearchQuery, settings: SettingsDep, transport: TransportDep, request: Request
 ) -> SearchResponse:
     """Live SPHEREx search against IRSA SIA2; lists observations, never downloads FITS."""
+    request.state.source = "live"
     queried_at = datetime.now(DEMO_TIMEZONE).replace(microsecond=0)
     url = build_sia_url(**query.model_dump())
     try:
@@ -136,13 +180,15 @@ def sky_search(
         queried_at=queried_at,
         query=query,
         warnings=table_warnings + row_warnings,
+        detectors=distinct_detectors(observations),
         observations=observations,
     )
 
 
 @app.get("/v1/examples", response_model=list[ExampleResponse], tags=["examples"])
-def list_examples(settings: SettingsDep) -> list[ExampleResponse]:
+def list_examples(settings: SettingsDep, request: Request) -> list[ExampleResponse]:
     """The five challenge targets from cached manifests; never queries IRSA."""
+    request.state.source = "cache"
     return [build_example(slug, settings) for slug in EXAMPLES]
 
 
@@ -152,10 +198,91 @@ def list_examples(settings: SettingsDep) -> list[ExampleResponse]:
     responses=error_responses(404),
     tags=["examples"],
 )
-def get_example(slug: str, settings: SettingsDep) -> ExampleResponse:
+def get_example(
+    slug: str,
+    settings: SettingsDep,
+    request: Request,
+    detector: Annotated[
+        str | None, Query(description="Keep only frames with this exact detector value")
+    ] = None,
+) -> ExampleResponse:
+    request.state.source = "cache"
     if slug not in EXAMPLES:
         raise HTTPException(status_code=404, detail="Unknown example")
-    return build_example(slug, settings)
+    return build_example(slug, settings, detector)
+
+
+@app.post(
+    "/v1/examples/{slug}/summary",
+    response_model=SummaryResponse,
+    responses=error_responses(404, 409, 429, 502, 503, 504),
+    tags=["examples"],
+)
+def summarize_example(
+    slug: str, settings: SettingsDep, make_client: GeminiFactoryDep, request: Request
+) -> SummaryResponse:
+    """Gemini explains the cached manifest of one target, citing numbered evidence.
+
+    Paid call: runs only when GEMINI_ENABLED=true, prices and a USD budget are set, and
+    the worst-case cost fits in the remaining budget. Output never changes any result.
+    """
+    request.state.source = "gemini"
+    if slug not in EXAMPLES:
+        raise HTTPException(status_code=404, detail="Unknown example")
+    if reason := summaries.missing_configuration(settings):
+        raise HTTPException(status_code=503, detail=reason)
+
+    example = build_example(slug, settings)
+    if example.query is None:
+        raise HTTPException(status_code=409, detail="No cached evidence for this target yet")
+    evidence = build_evidence(example.model_dump(mode="json"))
+    evidence_lines = [EvidenceLine(id=tag, text=text) for tag, text in evidence]
+    ledger = summaries.get_ledger(
+        settings.state_dir / "gemini_budget.json", settings.gemini_budget_usd
+    )
+    key = summaries.cache_key(slug, settings.gemini_model, render_prompt(evidence))
+    if (cached := summaries.summary_cache.get(key)) is not None:
+        return cached.model_copy(update={"cached": True})
+
+    if wait := summaries.rate_limiter.acquire(settings.gemini_max_calls_per_minute):
+        raise HTTPException(
+            status_code=429,
+            detail="Too many Gemini summaries; try again shortly",
+            headers={"Retry-After": str(math.ceil(wait))},
+        )
+    try:
+        result = generate_summary(
+            evidence,
+            client=make_client(settings),
+            model=settings.gemini_model,
+            prices=Prices(settings.gemini_input_usd_per_mtok, settings.gemini_output_usd_per_mtok),
+            ledger=ledger,
+            max_output_tokens=settings.gemini_max_output_tokens,
+        )
+    except BudgetExceeded as exc:
+        raise HTTPException(status_code=429, detail=str(exc)) from exc
+    except ProviderTimeout as exc:
+        raise HTTPException(status_code=504, detail=str(exc)) from exc
+    except SummaryError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    response = SummaryResponse(
+        slug=slug,
+        model=settings.gemini_model,
+        generated_at=datetime.now(DEMO_TIMEZONE).replace(microsecond=0),
+        cached=False,
+        text=result.text,
+        cited=result.cited,
+        evidence=evidence_lines,
+        usage=SummaryUsage(
+            input_tokens=result.input_tokens,
+            output_tokens=result.output_tokens,
+            cost_usd=round(result.cost_usd, 6),
+            budget_remaining_usd=round(ledger.state().remaining_usd, 6),
+        ),
+    )
+    summaries.summary_cache[key] = response
+    return response
 
 
 @app.get(

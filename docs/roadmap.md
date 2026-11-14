@@ -9,7 +9,7 @@
 | 5 | Known objects, labeled injections, and evaluation without data leakage | Pending |
 | 6 | Explainable ranking; AI only with labels and evaluated improvement | Pending |
 | 7 | Next.js, Aladin, temporal blink, trajectories, and evidence dossier | Pending |
-| 8 | Gemini with atomic reservations, quotas, and a tested USD 4 ceiling | Pending |
+| 8 | Gemini with atomic reservations, quotas, and a tested USD 4 ceiling | Partial: cached-example summary with per-process reservations, tested offline; no paid call verified; budget not yet in PostgreSQL |
 | 9 | Authentication/review, integration tests, and operations | Pending |
 | 10 | Originality assessment, reproducible demo, and English presentation | Pending |
 

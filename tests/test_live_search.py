@@ -109,6 +109,7 @@ def test_live_search_parses_real_irsa_rows_in_time_order(workspace):
     assert all("access_url" not in o for o in observations)
     assert "irsa.ipac.caltech.edu/ibe" not in response.text
     assert body["warnings"] == ["duplicate-rows-removed", "time-scale-unverified"]
+    assert body["detectors"] == ["SPHEREx-D3", "SPHEREx-D6", "SPHEREx-D2"]
 
 
 def test_live_row_links_to_cached_png_with_same_obs_id_and_detector(workspace):

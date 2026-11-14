@@ -177,6 +177,24 @@
               "type": "string",
               "title": "Slug"
             }
+          },
+          {
+            "name": "detector",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Keep only frames with this exact detector value",
+              "title": "Detector"
+            },
+            "description": "Keep only frames with this exact detector value"
           }
         ],
         "responses": {
@@ -199,6 +217,109 @@
               }
             },
             "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/examples/{slug}/summary": {
+      "post": {
+        "tags": [
+          "examples"
+        ],
+        "summary": "Summarize Example",
+        "description": "Gemini explains the cached manifest of one target, citing numbered evidence.\n\nPaid call: runs only when GEMINI_ENABLED=true, prices and a USD budget are set, and\nthe worst-case cost fits in the remaining budget. Output never changes any result.",
+        "operationId": "summarize_example_v1_examples__slug__summary_post",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SummaryResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Gateway"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Gateway Timeout"
           },
           "422": {
             "description": "Validation Error",
@@ -282,6 +403,25 @@
         ],
         "title": "ErrorResponse"
       },
+      "EvidenceLine": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Tag cited in the summary text, e.g. E1"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "text"
+        ],
+        "title": "EvidenceLine"
+      },
       "ExampleResponse": {
         "properties": {
           "source": {
@@ -320,6 +460,14 @@
             },
             "type": "array",
             "title": "Warnings"
+          },
+          "detectors": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Detectors",
+            "description": "Distinct detector values in order of first appearance, before filtering"
           },
           "observations": {
             "items": {
@@ -638,6 +786,14 @@
             "type": "array",
             "title": "Warnings"
           },
+          "detectors": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Detectors",
+            "description": "Distinct detector values in order of first appearance, before filtering"
+          },
           "observations": {
             "items": {
               "$ref": "#/components/schemas/Observation"
@@ -695,6 +851,102 @@
           "radius_deg"
         ],
         "title": "SkySearchQuery"
+      },
+      "SummaryResponse": {
+        "properties": {
+          "slug": {
+            "type": "string",
+            "enum": [
+              "barnards-star",
+              "epsilon-indi-b",
+              "wise-0855",
+              "rw-aurigae",
+              "r-draconis"
+            ],
+            "title": "Slug"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          },
+          "cached": {
+            "type": "boolean",
+            "title": "Cached",
+            "description": "True when served from the in-process summary cache"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "cited": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Cited"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceLine"
+            },
+            "type": "array",
+            "title": "Evidence"
+          },
+          "usage": {
+            "$ref": "#/components/schemas/SummaryUsage"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "default": "AI-generated explanation of archive metadata. It does not confirm any object or motion."
+          }
+        },
+        "type": "object",
+        "required": [
+          "slug",
+          "model",
+          "generated_at",
+          "cached",
+          "text",
+          "cited",
+          "evidence",
+          "usage"
+        ],
+        "title": "SummaryResponse",
+        "description": "Gemini's plain-language explanation of a cached target's evidence. Not a measurement."
+      },
+      "SummaryUsage": {
+        "properties": {
+          "input_tokens": {
+            "type": "integer",
+            "title": "Input Tokens"
+          },
+          "output_tokens": {
+            "type": "integer",
+            "title": "Output Tokens"
+          },
+          "cost_usd": {
+            "type": "number",
+            "title": "Cost Usd"
+          },
+          "budget_remaining_usd": {
+            "type": "number",
+            "title": "Budget Remaining Usd"
+          }
+        },
+        "type": "object",
+        "required": [
+          "input_tokens",
+          "output_tokens",
+          "cost_usd",
+          "budget_remaining_usd"
+        ],
+        "title": "SummaryUsage"
       },
       "ValidationError": {
         "properties": {

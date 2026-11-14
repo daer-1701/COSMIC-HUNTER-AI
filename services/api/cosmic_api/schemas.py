@@ -65,6 +65,10 @@ class SearchResponse(BaseModel):
     queried_at: datetime
     query: SkySearchQuery
     warnings: list[str] = Field(default_factory=list)
+    detectors: list[str] = Field(
+        default_factory=list,
+        description="Distinct detector values in order of first appearance, before filtering",
+    )
     observations: list[Observation] = Field(default_factory=list)
 
 
@@ -81,6 +85,34 @@ class ExampleResponse(SearchResponse):
         default=None, description="Whether at least two frames can be animated together"
     )
     comparison_note: str | None = None
+
+
+class EvidenceLine(BaseModel):
+    id: str = Field(description="Tag cited in the summary text, e.g. E1")
+    text: str
+
+
+class SummaryUsage(BaseModel):
+    input_tokens: int
+    output_tokens: int
+    cost_usd: float
+    budget_remaining_usd: float
+
+
+class SummaryResponse(BaseModel):
+    """Gemini's plain-language explanation of a cached target's evidence. Not a measurement."""
+
+    slug: ExampleSlug
+    model: str
+    generated_at: datetime
+    cached: bool = Field(description="True when served from the in-process summary cache")
+    text: str
+    cited: list[str]
+    evidence: list[EvidenceLine]
+    usage: SummaryUsage
+    disclaimer: str = (
+        "AI-generated explanation of archive metadata. It does not confirm any object or motion."
+    )
 
 
 class ManifestFrame(BaseModel):

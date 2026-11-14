@@ -49,7 +49,20 @@ def preview_path(frame: ManifestFrame, settings: Settings) -> Path | None:
     return path if path.is_file() else None
 
 
-def build_example(slug: str, settings: Settings) -> ExampleResponse:
+def distinct_detectors(observations: list[Observation]) -> list[str]:
+    return list(dict.fromkeys(o.detector for o in observations if o.detector))
+
+
+def filter_by_detector(
+    observations: list[Observation], detector: str | None
+) -> tuple[list[Observation], list[str]]:
+    if detector is None:
+        return observations, []
+    kept = [o for o in observations if o.detector == detector]
+    return kept, ([] if kept else ["unknown-detector"])
+
+
+def build_example(slug: str, settings: Settings, detector: str | None = None) -> ExampleResponse:
     manifest, warning = load_manifest(slug, settings)
     if manifest is None:
         return ExampleResponse(
@@ -77,6 +90,9 @@ def build_example(slug: str, settings: Settings) -> ExampleResponse:
     times = [o.mjd for o in observations if o.mjd is not None]
     if any(later < earlier for earlier, later in zip(times, times[1:], strict=False)):
         warnings.append("frames-not-chronological")
+    detectors = distinct_detectors(observations)
+    observations, filter_warnings = filter_by_detector(observations, detector)
+    warnings += filter_warnings
 
     return ExampleResponse(
         slug=slug,
@@ -92,6 +108,7 @@ def build_example(slug: str, settings: Settings) -> ExampleResponse:
         comparable=manifest.comparable,
         comparison_note=manifest.comparison_note,
         warnings=warnings,
+        detectors=detectors,
         observations=observations,
     )
 

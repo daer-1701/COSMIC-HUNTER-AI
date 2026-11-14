@@ -142,6 +142,26 @@ def test_empty_manifest_warns(client, workspace):
     assert body["warnings"] == ["no-observations"]
 
 
+def test_detector_filter_keeps_matching_frames_and_lists_all_detectors(client, workspace):
+    frames = [frame("a", 60800.0), frame("b", 60801.0, detector="D2"), frame("c", 60990.0)]
+    write_manifest(workspace, manifest(frames))
+
+    body = client.get("/v1/examples/wise-0855", params={"detector": "D1"}).json()
+
+    assert body["detectors"] == ["D1", "D2"]
+    assert [o["id"] for o in body["observations"]] == ["a", "c"]
+    assert body["warnings"] == []
+
+
+def test_unknown_detector_is_empty_with_warning_not_404(client, workspace):
+    write_manifest(workspace, manifest([frame("a", 60800.0)]))
+    response = client.get("/v1/examples/wise-0855", params={"detector": "D9"})
+    assert response.status_code == 200
+    assert response.json()["observations"] == []
+    assert response.json()["detectors"] == ["D1"]
+    assert response.json()["warnings"] == ["unknown-detector"]
+
+
 def test_unknown_example_is_404(client):
     assert_error(client.get("/v1/examples/planet-x"), 404)
 
