@@ -181,6 +181,24 @@ def test_repeated_network_failure_is_502(workspace):
     assert len(archive.requests) == 2
 
 
+def gateway_error(status=502):
+    return httpx.Response(status, headers={"content-type": "text/html"}, content="<html></html>")
+
+
+def test_gateway_error_is_retried_once(workspace):
+    response, archive = search_with(
+        gateway_error(), httpx.Response(200, headers=VOTABLE, content=FIXTURE)
+    )
+    assert response.status_code == 200
+    assert len(archive.requests) == 2
+
+
+def test_repeated_gateway_error_is_502(workspace):
+    response, archive = search_with(gateway_error(503), gateway_error(502))
+    assert assert_error(response, 502) == "IRSA returned HTTP 502"
+    assert len(archive.requests) == 2
+
+
 def test_timeout_is_504_without_retry(workspace):
     response, archive = search_with(httpx.ReadTimeout("slow"))
     assert "did not respond" in assert_error(response, 504)

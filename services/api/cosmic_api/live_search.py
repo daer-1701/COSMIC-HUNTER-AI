@@ -16,6 +16,7 @@ logger = logging.getLogger("cosmic_api")
 
 IRSA_HOST = "irsa.ipac.caltech.edu"
 MAX_RESPONSE_BYTES = 32 * 1024 * 1024
+RETRYABLE_STATUSES = frozenset({502, 503, 504})
 MJD_EPOCH = datetime(1858, 11, 17)
 EXPECTED_COLUMNS = ("obs_id", "obs_publisher_did", "obs_collection", "t_min", "energy_bandpassname")
 UNSAFE_ID_CHARS = re.compile(r"[^A-Za-z0-9_.-]+")
@@ -30,24 +31,34 @@ class ArchiveError(Exception):
         self.detail = detail
 
 
+class UpstreamUnavailable(ArchiveError):
+    """IRSA's gateway answered 502/503/504; worth one retry."""
+
+
 def fetch_votable(
     url: str, timeout_s: float, transport: httpx.BaseTransport | None = None
 ) -> bytes:
-    """GET an IRSA URL within a total deadline, retrying once on a network failure."""
+    """GET an IRSA URL within a total deadline, retrying once on a network or gateway failure."""
     parts = urlsplit(url)
     if parts.scheme != "https" or parts.hostname != IRSA_HOST:
         raise ValueError("Only https://irsa.ipac.caltech.edu URLs may be fetched")
 
     deadline = time.monotonic() + timeout_s
     for attempt in (1, 2):
+        last_attempt = attempt == 2
         try:
             return _get(url, deadline, transport)
         except httpx.TimeoutException as exc:
             raise ArchiveError(504, f"IRSA did not respond within {timeout_s:g} seconds") from exc
         except httpx.TransportError as exc:
             logger.warning("IRSA network failure (attempt %d): %s", attempt, exc)
-            if attempt == 2 or deadline - time.monotonic() <= 0:
+            if last_attempt or deadline - time.monotonic() <= 0:
                 raise ArchiveError(502, "Could not reach IRSA") from exc
+        except UpstreamUnavailable as exc:
+            # IRSA's front end intermittently answers 502/503/504 for queries that
+            # succeed seconds later.
+            if last_attempt or deadline - time.monotonic() <= 0:
+                raise ArchiveError(502, exc.detail) from exc
     raise AssertionError("unreachable")
 
 
@@ -59,7 +70,10 @@ def _get(url: str, deadline: float, transport: httpx.BaseTransport | None) -> by
         with client.stream("GET", url) as response:
             if response.status_code != 200:
                 logger.warning("IRSA answered HTTP %d for %s", response.status_code, url)
-                raise ArchiveError(502, f"IRSA returned HTTP {response.status_code}")
+                detail = f"IRSA returned HTTP {response.status_code}"
+                if response.status_code in RETRYABLE_STATUSES:
+                    raise UpstreamUnavailable(502, detail)
+                raise ArchiveError(502, detail)
             content_type = response.headers.get("content-type", "")
             if "xml" not in content_type:
                 logger.warning("IRSA answered content-type %r", content_type)
