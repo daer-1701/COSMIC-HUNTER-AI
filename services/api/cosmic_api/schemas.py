@@ -58,6 +58,10 @@ class Observation(BaseModel):
     band: str | None
     flags: list[str] = Field(default_factory=list)
     preview_url: str | None = Field(description="API path to a PNG preview, or null if none")
+    hdu: int | None = Field(default=None, description="Original FITS HDU from the cached manifest")
+    sha256: str | None = Field(
+        default=None, description="Original FITS SHA-256, not the PNG checksum"
+    )
 
 
 class SearchResponse(BaseModel):
@@ -81,6 +85,7 @@ class ExampleResponse(SearchResponse):
     queried_at: datetime | None = Field(description="When the cached archive query was made")
     query: SkySearchQuery | None = Field(description="Null until the target manifest exists")
     coord_source: str | None = None
+    coord_epoch: str | None = None
     comparable: bool | None = Field(
         default=None, description="Whether at least two frames can be animated together"
     )

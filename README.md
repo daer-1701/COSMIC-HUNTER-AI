@@ -21,6 +21,8 @@ uv run uvicorn cosmic_api.main:app --reload --port 8000
 
 Demo path: `uv sync` plus `uvicorn` is all you need. The API serves cached manifests
 from `data/manifests/*.json` and PNG previews from `apps/web/public/previews/`.
+The published WISE 0855 example includes two DR1 D2 previews; the other four targets
+await manifests. No target motion or flux change has been measured.
 No Docker, AWS, or Gemini keys are required; CORS allows `http://localhost:3000`.
 Optional: set `GEMINI_ENABLED=true` and `GEMINI_API_KEY` in `.env` to enable
 `POST /v1/examples/{slug}/summary`, capped by `GEMINI_BUDGET_USD` (see `docs/api.md`).

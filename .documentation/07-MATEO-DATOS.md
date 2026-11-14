@@ -157,6 +157,7 @@ def search_collection(ra_deg: float, dec_deg: float, radius_deg: float, collecti
     No captures el fallo en silencio.
     """
 
+
 def load_manifest(slug: str) -> dict:
     """Lee data/manifests/{slug}.json. FileNotFoundError si no existe."""
 ```

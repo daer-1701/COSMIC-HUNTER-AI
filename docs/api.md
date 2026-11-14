@@ -38,7 +38,7 @@ The VOTable does not declare a time scale, so `time_scale` is null, `iso_time` i
 calendar rendering of the MJD without a UTC suffix, and the response carries the
 `time-scale-unverified` warning. An empty result is 200 with `no-observations`.
 `preview_url` is set only when a cached manifest frame with the same `obs_id` and
-`detector` has a PNG. One retry on network failure; redirects are not followed;
+`detector` has a PNG. One retry on a network failure or an IRSA 502/503/504; redirects are not followed;
 responses above 32 MB are rejected.
 
 ICRS coordinates in degrees: 0 <= RA < 360, -90 <= Dec <= 90; radius (0, 0.5].
@@ -66,3 +66,18 @@ Planned errors with request_id: 401/403 authorization, 404 missing resource, 409
 422 validation, 429 quota, 502/503 provider errors; Retry-After where applicable.
 Reusing Idempotency-Key with a different body must return 409. Document API messages
 and descriptions in English.
+
+## Published WISE 0855 integration
+
+The repository now includes Mateo's DR1 D2 manifest and two PNG previews. Use
+`GET /v1/examples/wise-0855?detector=SPHEREx-D2`, then request each observation's
+`preview_url`. These are cached products, not fresh downloads. The response preserves
+`coord_epoch`, and each cached observation exposes `hdu` and `sha256` (the original
+FITS checksum, not the PNG checksum). Live observations leave those fields null.
+Comparison notes and warnings must remain visible in the frontend: the supplied
+checks support visual comparison but do not measure target motion or flux changes.
+The other four examples remain not ready until their manifests are supplied.
+
+`tests/test_published_example.py` checks the actual published PNG checksums and HTTP
+routes, metadata, disabled Gemini behavior, and preview linking with a synthetic
+archive response. It does not re-run the notebook or validate the original FITS.

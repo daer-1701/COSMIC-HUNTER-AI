@@ -502,6 +502,17 @@
             ],
             "title": "Coord Source"
           },
+          "coord_epoch": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coord Epoch"
+          },
           "comparable": {
             "anyOf": [
               {
@@ -650,6 +661,30 @@
             ],
             "title": "Preview Url",
             "description": "API path to a PNG preview, or null if none"
+          },
+          "hdu": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hdu",
+            "description": "Original FITS HDU from the cached manifest"
+          },
+          "sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sha256",
+            "description": "Original FITS SHA-256, not the PNG checksum"
           }
         },
         "type": "object",

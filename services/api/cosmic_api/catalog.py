@@ -80,6 +80,8 @@ def build_example(slug: str, settings: Settings, detector: str | None = None) ->
             detector=frame.detector,
             band=frame.band,
             flags=frame.flags,
+            hdu=frame.hdu,
+            sha256=frame.sha256,
             preview_url=f"/v1/frames/{frame.id}" if preview_path(frame, settings) else None,
         )
         for frame in manifest.frames
@@ -105,6 +107,7 @@ def build_example(slug: str, settings: Settings, detector: str | None = None) ->
             collection=manifest.collection,
         ),
         coord_source=manifest.coord_source,
+        coord_epoch=manifest.coord_epoch,
         comparable=manifest.comparable,
         comparison_note=manifest.comparison_note,
         warnings=warnings,
