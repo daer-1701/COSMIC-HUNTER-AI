@@ -4,6 +4,15 @@ Actualizado: 14 de noviembre de 2026, America/La_Paz.
 
 Este paquete permite incorporar personas y agentes al proyecto sin depender del chat. Incluye contexto, fuentes, propuesta técnica y un plan de ejecución. No contiene una aplicación implementada ni resultados científicos comprobados.
 
+## Plan del fin de semana
+
+Asignación: Mateo datos, Julio backend, Eduardo web. Empiecen por el plan común y luego cada uno abre solo su guía.
+
+1. [Plan de equipo, contrato y horario](06-PLAN-EQUIPO.md).
+2. [Mateo — datos](07-MATEO-DATOS.md).
+3. [Julio — backend](08-JULIO-BACKEND.md).
+4. [Eduardo — web y demo](09-EDUARDO-WEB.md).
+
 ## Leer en este orden
 
 1. [Contexto y alcance](01-CONTEXTO-Y-ALCANCE.md).
