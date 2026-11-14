@@ -61,6 +61,204 @@
             }
           },
           "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/sky/search": {
+      "post": {
+        "tags": [
+          "observations"
+        ],
+        "summary": "Sky Search",
+        "description": "Live SPHEREx search against IRSA. Not wired yet: always 501 after validation.",
+        "operationId": "sky_search_v1_sky_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SkySearchQuery"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Not Implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway Timeout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/examples": {
+      "get": {
+        "tags": [
+          "examples"
+        ],
+        "summary": "List Examples",
+        "description": "The five challenge targets from cached manifests; never queries IRSA.",
+        "operationId": "list_examples_v1_examples_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ExampleResponse"
+                  },
+                  "type": "array",
+                  "title": "Response List Examples V1 Examples Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/examples/{slug}": {
+      "get": {
+        "tags": [
+          "examples"
+        ],
+        "summary": "Get Example",
+        "operationId": "get_example_v1_examples__slug__get",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExampleResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/frames/{frame_id}": {
+      "get": {
+        "tags": [
+          "frames"
+        ],
+        "summary": "Get Frame",
+        "operationId": "get_frame_v1_frames__frame_id__get",
+        "parameters": [
+          {
+            "name": "frame_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Frame Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "image/png": {}
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
             "description": "Validation Error",
             "content": {
               "application/json": {
@@ -76,6 +274,130 @@
   },
   "components": {
     "schemas": {
+      "ErrorResponse": {
+        "properties": {
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "detail",
+          "request_id"
+        ],
+        "title": "ErrorResponse"
+      },
+      "ExampleResponse": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "const": "cache",
+            "title": "Source",
+            "default": "cache"
+          },
+          "queried_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Queried At",
+            "description": "When the cached archive query was made"
+          },
+          "query": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SkySearchQuery"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Null until the target manifest exists"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "observations": {
+            "items": {
+              "$ref": "#/components/schemas/Observation"
+            },
+            "type": "array",
+            "title": "Observations"
+          },
+          "slug": {
+            "type": "string",
+            "enum": [
+              "barnards-star",
+              "epsilon-indi-b",
+              "wise-0855",
+              "rw-aurigae",
+              "r-draconis"
+            ],
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "coord_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coord Source"
+          },
+          "comparable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comparable",
+            "description": "Whether at least two frames can be animated together"
+          },
+          "comparison_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comparison Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "queried_at",
+          "query",
+          "slug",
+          "name"
+        ],
+        "title": "ExampleResponse",
+        "description": "A cached search for one of the challenge targets; never a live archive query."
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -88,6 +410,123 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "Observation": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Stable identifier used by /v1/frames/{id}"
+          },
+          "obs_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Obs Id",
+            "description": "Archive observation identifier, copied verbatim"
+          },
+          "mjd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mjd",
+            "description": "Observation time as published; scale in time_scale"
+          },
+          "time_scale": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Scale"
+          },
+          "iso_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iso Time"
+          },
+          "collection": {
+            "type": "string",
+            "enum": [
+              "spherex_dr1",
+              "spherex_qr3"
+            ],
+            "title": "Collection"
+          },
+          "detector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detector"
+          },
+          "band": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Band"
+          },
+          "flags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Flags"
+          },
+          "preview_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preview Url",
+            "description": "API path to a PNG preview, or null if none"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "obs_id",
+          "mjd",
+          "time_scale",
+          "iso_time",
+          "collection",
+          "detector",
+          "band",
+          "preview_url"
+        ],
+        "title": "Observation"
       },
       "ObservationQuery": {
         "properties": {
@@ -183,6 +622,89 @@
           "url"
         ],
         "title": "QueryPlan"
+      },
+      "SearchResponse": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "live",
+              "cache"
+            ],
+            "title": "Source"
+          },
+          "queried_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Queried At"
+          },
+          "query": {
+            "$ref": "#/components/schemas/SkySearchQuery"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "observations": {
+            "items": {
+              "$ref": "#/components/schemas/Observation"
+            },
+            "type": "array",
+            "title": "Observations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source",
+          "queried_at",
+          "query"
+        ],
+        "title": "SearchResponse"
+      },
+      "SkySearchQuery": {
+        "properties": {
+          "ra_deg": {
+            "type": "number",
+            "exclusiveMaximum": 360.0,
+            "minimum": 0.0,
+            "title": "Ra Deg",
+            "description": "ICRS right ascension in degrees"
+          },
+          "dec_deg": {
+            "type": "number",
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Dec Deg",
+            "description": "ICRS declination in degrees"
+          },
+          "radius_deg": {
+            "type": "number",
+            "maximum": 0.5,
+            "exclusiveMinimum": 0.0,
+            "title": "Radius Deg",
+            "description": "Cone radius in degrees"
+          },
+          "collection": {
+            "type": "string",
+            "enum": [
+              "spherex_dr1",
+              "spherex_qr3"
+            ],
+            "title": "Collection",
+            "default": "spherex_dr1"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ra_deg",
+          "dec_deg",
+          "radius_deg"
+        ],
+        "title": "SkySearchQuery"
       },
       "ValidationError": {
         "properties": {
