@@ -96,6 +96,19 @@ def build_example(slug: str, settings: Settings) -> ExampleResponse:
     )
 
 
+def preview_index(collection: str, settings: Settings) -> dict[tuple[str, str], str]:
+    """Map (obs_id, detector) to a cached frame id whose PNG exists, for live results."""
+    index: dict[tuple[str, str], str] = {}
+    for slug in EXAMPLES:
+        manifest, _ = load_manifest(slug, settings)
+        if manifest is None or manifest.collection != collection:
+            continue
+        for frame in manifest.frames:
+            if frame.obs_id and frame.detector and preview_path(frame, settings):
+                index.setdefault((frame.obs_id, frame.detector), frame.id)
+    return index
+
+
 def find_frame_preview(frame_id: str, settings: Settings) -> Path | None:
     for slug in EXAMPLES:
         manifest, _ = load_manifest(slug, settings)

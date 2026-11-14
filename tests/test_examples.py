@@ -183,10 +183,6 @@ def test_sky_search_rejects_invalid_requests(client, change):
     assert_error(client.post("/v1/sky/search", json=SEARCH | change), 422)
 
 
-def test_sky_search_is_not_wired_yet(client):
-    assert_error(client.post("/v1/sky/search", json=SEARCH), 501)
-
-
 def test_cors_allows_only_the_web_origin(client):
     preflight = {"Access-Control-Request-Method": "POST"}
     allowed = client.options(

@@ -1,7 +1,9 @@
 import logging
 import uuid
+from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
+import httpx
 from cosmic_astronomy.irsa import build_sia_url
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
@@ -9,7 +11,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from cosmic_api.catalog import EXAMPLES, build_example, find_frame_preview
+from cosmic_api.catalog import EXAMPLES, build_example, find_frame_preview, preview_index
+from cosmic_api.live_search import ArchiveError, build_observations, fetch_votable, parse_votable
 from cosmic_api.schemas import (
     ErrorResponse,
     ExampleResponse,
@@ -23,6 +26,15 @@ from cosmic_api.settings import Settings, get_settings
 logger = logging.getLogger("cosmic_api")
 
 SettingsDep = Annotated[Settings, Depends(get_settings)]
+DEMO_TIMEZONE = timezone(timedelta(hours=-4))
+
+
+def get_archive_transport() -> httpx.BaseTransport | None:
+    """Default network transport; tests override it so no request leaves the process."""
+    return None
+
+
+TransportDep = Annotated[httpx.BaseTransport | None, Depends(get_archive_transport)]
 
 
 def error_responses(*codes: int) -> dict[int | str, dict]:
@@ -98,12 +110,34 @@ def observation_query_plan(query: ObservationQuery) -> QueryPlan:
 @app.post(
     "/v1/sky/search",
     response_model=SearchResponse,
-    responses=error_responses(422, 501, 502, 504),
+    responses=error_responses(422, 502, 504),
     tags=["observations"],
 )
-def sky_search(query: SkySearchQuery) -> SearchResponse:
-    """Live SPHEREx search against IRSA. Not wired yet: always 501 after validation."""
-    raise HTTPException(status_code=501, detail="live search not wired")
+def sky_search(
+    query: SkySearchQuery, settings: SettingsDep, transport: TransportDep
+) -> SearchResponse:
+    """Live SPHEREx search against IRSA SIA2; lists observations, never downloads FITS."""
+    queried_at = datetime.now(DEMO_TIMEZONE).replace(microsecond=0)
+    url = build_sia_url(**query.model_dump())
+    try:
+        rows, table_warnings = parse_votable(
+            fetch_votable(url, settings.irsa_timeout_seconds, transport)
+        )
+    except ArchiveError as exc:
+        logger.warning("search source=live status=%d detail=%s", exc.status_code, exc.detail)
+        raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
+
+    observations, row_warnings = build_observations(
+        rows, query.collection, preview_index(query.collection, settings)
+    )
+    logger.info("search source=live status=200 observations=%d", len(observations))
+    return SearchResponse(
+        source="live",
+        queried_at=queried_at,
+        query=query,
+        warnings=table_warnings + row_warnings,
+        observations=observations,
+    )
 
 
 @app.get("/v1/examples", response_model=list[ExampleResponse], tags=["examples"])

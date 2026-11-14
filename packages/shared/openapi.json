@@ -79,7 +79,7 @@
           "observations"
         ],
         "summary": "Sky Search",
-        "description": "Live SPHEREx search against IRSA. Not wired yet: always 501 after validation.",
+        "description": "Live SPHEREx search against IRSA SIA2; lists observations, never downloads FITS.",
         "operationId": "sky_search_v1_sky_search_post",
         "requestBody": {
           "content": {
@@ -104,16 +104,6 @@
           },
           "422": {
             "description": "Unprocessable Entity",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "501": {
-            "description": "Not Implemented",
             "content": {
               "application/json": {
                 "schema": {

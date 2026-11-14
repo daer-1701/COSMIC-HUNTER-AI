@@ -9,11 +9,26 @@ Executable source: Pydantic models and OpenAPI exported to
 | --- | --- |
 | GET /health/live | 200: process alive; does not assert SQL/IRSA readiness |
 | POST /v1/observations/query-plan | 200: IRSA URL, executed=false; 422: invalid input |
+| POST /v1/sky/search | 200: live IRSA SIA2 observations, source=live; 422; 502 IRSA failure; 504 after 25 s |
+| GET /v1/examples, GET /v1/examples/{slug} | 200: cached manifests, source=cache; never contacts IRSA; 404 unknown slug |
+| GET /v1/frames/{id} | 200 image/png from `apps/web/public/previews/`; 404 if missing |
+
+`/v1/sky/search` lists ObsCore rows only; it never downloads FITS or returns
+`access_url`. Rows are sorted by `t_min` (MJD) and de-duplicated by publisher DID,
+because one SPHEREx `obs_id` covers several detectors. `detector` copies
+`energy_bandpassname` verbatim and `band` stays null: a detector is not a uniform band.
+The VOTable does not declare a time scale, so `time_scale` is null, `iso_time` is the
+calendar rendering of the MJD without a UTC suffix, and the response carries the
+`time-scale-unverified` warning. An empty result is 200 with `no-observations`.
+`preview_url` is set only when a cached manifest frame with the same `obs_id` and
+`detector` has a PNG. One retry on network failure; redirects are not followed;
+responses above 32 MB are rejected.
 
 ICRS coordinates in degrees: 0 <= RA < 360, -90 <= Dec <= 90; radius (0, 0.5].
 DR1 or QR3 collection. Optional time requires both MJD bounds using the scale required
 by SIA2; confirm file semantics during import. Extra fields and nonfinite values are
-rejected. This endpoint does not run external queries or persist evidence.
+rejected. The query-plan endpoint does not run external queries; no endpoint persists
+evidence.
 
 ## Designed, not yet implemented
 

@@ -10,6 +10,7 @@ class Settings:
     manifests_dir: Path
     previews_dir: Path
     cors_origins: tuple[str, ...]
+    irsa_timeout_seconds: float = 25.0
 
 
 def get_settings() -> Settings:
@@ -21,4 +22,5 @@ def get_settings() -> Settings:
         ),
         # A wildcard origin is never honoured; the browser client is an explicit list.
         cors_origins=tuple(o.strip() for o in origins if o.strip() and o.strip() != "*"),
+        irsa_timeout_seconds=float(os.environ.get("IRSA_TIMEOUT_SECONDS", "25")),
     )

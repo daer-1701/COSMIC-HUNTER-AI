@@ -7,14 +7,22 @@ name = "cosmic-hunter-ai"
 version = "0.1.0"
 description = "Architecture foundation for reproducible SPHEREx motion investigations"
 requires-python = ">=3.12,<3.14"
-dependencies = ["fastapi>=0.115,<1", "uvicorn>=0.34,<1", "pydantic>=2.10,<3"]
+dependencies = [
+    "fastapi>=0.115,<1",
+    "uvicorn>=0.34,<1",
+    "pydantic>=2.10,<3",
+    "httpx>=0.28,<1",
+]
 
 [project.optional-dependencies]
 astronomy = ["astropy>=7,<9", "pyvo>=1.6,<2", "photutils>=2,<4", "reproject>=0.14,<1", "scipy>=1.15,<2"]
 workers = ["celery[redis]>=5.5,<6", "sqlalchemy>=2,<3", "psycopg[binary]>=3.2,<4", "boto3>=1.36,<2"]
 
 [dependency-groups]
-dev = ["pytest>=8,<10", "httpx>=0.28,<1", "ruff>=0.11,<1"]
+dev = [
+    "pytest>=8,<10",
+    "ruff>=0.11,<1",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["services/api/cosmic_api", "services/astronomy/cosmic_astronomy", "services/detection/cosmic_detection", "services/ai/cosmic_ai", "services/workers/cosmic_workers"]
