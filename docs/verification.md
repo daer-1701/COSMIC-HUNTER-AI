@@ -15,8 +15,8 @@ This does not affect these tests; review compatibility when updating the test cl
 
 Not verified during initial setup: Docker build/startup or SQL execution, because the
 Docker Desktop daemon was unavailable. Run the bootstrap in PostgreSQL and validate
-constraints before integrating persistence. CI includes the API image build; its
-remote run was not verified during initial setup, when no remote was configured.
+constraints before integrating persistence. The GitHub Actions CI workflow was
+removed at the team's request; local verification commands remain available.
 
 Live IRSA, FITS processing, detection, Gemini, frontend, and queues were not tested:
 they are not implemented. Current tests validate the architecture foundation, not

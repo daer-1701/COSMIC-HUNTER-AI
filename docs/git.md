@@ -24,6 +24,7 @@ in .env.example are for local development only. Review the staged diff before co
 later removed from history. Keep FITS files/models outside Git; store manifests with
 references, checksums, and access conditions.
 
-CI checks style, tests, OpenAPI drift, Compose configuration, and the API image build.
+The GitHub Actions CI workflow was removed at the team's request. Run the local
+verification commands in README.md before sharing changes.
 Configure main branch protection and pull request reviews in GitHub. Verify the SQL
 schema against real PostgreSQL; generating the file is not sufficient.
